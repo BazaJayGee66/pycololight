@@ -19,6 +19,17 @@ light.colour = (255, 127, 255)
 # Set effect
 light.effect = "Sunrise"
 
+# Create custom effect
+light.add_custom_effect(
+  name="custom effect",
+  colour_scheme="Shadow",
+  colour="Red, Yellow",
+  cycle_speed=11,
+  mode=1
+)
+
 # Turn off
 light.on = 0
 ```
+
+Mapping of modes for custom effects can be found [here](MODES.md)
