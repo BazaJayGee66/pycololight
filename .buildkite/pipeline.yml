@@ -24,3 +24,20 @@
           workdir: /workspaces/pycololight
     artifact_paths:
       - "dist/**/*"
+
+  - wait
+
+  - label: ":rocket::python: Publish to Pypi"
+    branches: 'main'
+    commands:
+      - buildkite-agent artifact download dist/* .
+      - poetry config repositories.testpypi https://test.pypi.org/legacy/
+      - poetry publish -r testpypi --username __token__ --password $PYPI_TOKEN
+    plugins:
+      - docker#v3.5.0:
+          image: "pycololight-devimage"
+          workdir: /workspaces/pycololight
+
+  - label: ":rocket::github: Publish to github"
+    branches: 'main'
+    command: ./scripts/release_gh.sh
