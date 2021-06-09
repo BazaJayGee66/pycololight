@@ -11,3 +11,16 @@
       - docker#v3.5.0:
           image: "pycololight-devimage"
           workdir: /workspaces/pycololight
+
+  - block: ":rotating_light::rocket: Release"
+    branches: 'main'
+
+  - label: ":parcel::python: Build"
+    branches: 'main'
+    command: ./scripts/build.sh
+    plugins:
+      - docker#v3.5.0:
+          image: "pycololight-devimage"
+          workdir: /workspaces/pycololight
+    artifact_paths:
+      - "dist/**/*"
