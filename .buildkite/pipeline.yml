@@ -1,0 +1,13 @@
+  - label: ":parcel::docker: Build Test container"
+    concurrency: 1
+    concurrency_group: "build_test_container"
+    command: docker build -f Dockerfile.dev -t pycololight-devimage .
+
+  - wait
+
+  - label: ":python: Run Tests"
+    command: pytest
+    plugins:
+      - docker#v3.5.0:
+          image: "pycololight-devimage"
+          workdir: /workspaces/pycololight
