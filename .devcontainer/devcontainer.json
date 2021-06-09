@@ -1,0 +1,33 @@
+{
+  "name": "PyCololight Dev",
+  "context": "..",
+  "dockerFile": "../Dockerfile.dev",
+  "runArgs": ["-e", "GIT_EDITOR=code --wait"],
+  "extensions": [
+    "ms-python.python",
+    "visualstudioexptteam.vscodeintellicode",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode",
+    "compulim.vscode-clock",
+    "eamodio.gitlens",
+    "shardulm94.trailing-spaces",
+    "be5invis.toml"
+  ],
+  "containerEnv": {
+    "TZ": "Australia/Melbourne"
+  },
+  "settings": {
+    "python.pythonPath": "/usr/local/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "terminal.integrated.copyOnSelection": true,
+    "files.trimTrailingWhitespace": true,
+    "terminal.integrated.defaultProfile.linux": "/bin/bash",
+  }
+}

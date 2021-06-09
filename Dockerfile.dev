@@ -1,0 +1,12 @@
+FROM python:3.8
+
+WORKDIR /workspaces
+
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - &&\
+    mv ~/.poetry/bin/poetry /usr/local/bin/poetry &&\
+    mv ~/.poetry/lib/poetry /usr/local/lib/poetry &&\
+    chmod 755 /usr/local/bin/poetry &&\
+    rm -rf ~/.poetry
+
+ENV PYTHONPATH /workspaces/pycololight
+ENV SHELL /bin/bash
