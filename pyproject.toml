@@ -1,0 +1,21 @@
+[tool.poetry]
+authors = ["BazaJayGee66"]
+description = "A Python3 wrapper for interacting with LifeSmart ColoLight"
+include = ["CHANGELOG.md"]
+license = "MIT"
+name = "pycololight"
+readme = "README.md"
+repository = "https://github.com/BazaJayGee66/pycololight"
+version = "0.0.1"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+black = "21.5b1"
+pylint = "2.8.2"
+pytest = "6.2.4"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
