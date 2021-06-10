@@ -31,8 +31,7 @@
     branches: 'main'
     commands:
       - buildkite-agent artifact download dist/* .
-      - poetry config repositories.testpypi https://test.pypi.org/legacy/
-      - poetry publish -r testpypi --username __token__ --password $PYPI_TOKEN
+      - poetry publish --username __token__ --password $PYPI_TOKEN
     plugins:
       - docker#v3.5.0:
           image: "pycololight-devimage"
