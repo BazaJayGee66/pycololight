@@ -5,6 +5,8 @@ A Python3 wrapper for interacting with LifeSmart ColoLight
 ## Usage
 
 ```python
+from pycololight import PyCololight
+
 light = PyCololight(host="1.1.1.1")
 
 # Turn on at 60% brightness
