@@ -34,4 +34,4 @@ light.add_custom_effect(
 light.on = 0
 ```
 
-Mapping of modes for custom effects can be found [here](MODES.md)
+Mapping of modes for custom effects can be found [here](https://github.com/BazaJayGee66/pycololight/blob/main/MODES.md)
