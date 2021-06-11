@@ -38,7 +38,7 @@ class PyCololight:
         self._colour = None
         self._effect = None
         self._effects = DEFAULT_EFFECTS.copy() if default_effects else {}
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def _switch_count(self):
         if self._count == 1:
@@ -47,7 +47,7 @@ class PyCololight:
             self._count = 1
 
     def _send(self, command):
-        self._sock.sendto(command, (self.host, self.port))
+        self._socket.sendto(command, (self.host, self.port))
 
     def _get_config(self, config_type):
         if config_type == "command":
