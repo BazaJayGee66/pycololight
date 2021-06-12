@@ -6,7 +6,7 @@
   - wait
 
   - label: ":python: Run Tests"
-    command: pytest
+    command: pytest --cov=pycololight
     plugins:
       - docker#v3.5.0:
           image: "pycololight-devimage"
