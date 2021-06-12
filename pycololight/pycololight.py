@@ -32,7 +32,7 @@ class PyCololight:
     def __init__(self, host, port=8900, default_effects=True):
         self.host = host
         self.port = port
-        self._count = 1
+        self._counter = 1
         self._on = False
         self._brightness = None
         self._colour = None
@@ -40,11 +40,8 @@ class PyCololight:
         self._effects = DEFAULT_EFFECTS.copy() if default_effects else {}
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    def _switch_count(self):
-        if self._count == 1:
-            self._count = 2
-        else:
-            self._count = 1
+    def _toggle_counter(self):
+        self._counter = 2 if self._counter == 1 else 1
 
     def _send(self, command):
         self._socket.sendto(command, (self.host, self.port))
@@ -93,8 +90,8 @@ class PyCololight:
 
     @property
     def count(self):
-        count = self._count
-        self._switch_count()
+        count = self._counter
+        self._toggle_counter()
         return count
 
     @property

@@ -272,16 +272,16 @@ class TestPyCololight:
 
         assert light.effects == effects
 
-    def test_counter_returns_boolen_count(self):
+    def test_counter_returns_boolen_counter(self):
         light = PyCololight("1.1.1.1")
 
-        assert light._count == 1
+        assert light._counter == 1
 
-        light._switch_count()
-        assert light._count == 2
+        light._toggle_counter()
+        assert light._counter == 2
 
-        light._switch_count()
-        assert light._count == 1
+        light._toggle_counter()
+        assert light._counter == 1
 
     def test_get_config_returns_config_for_command(self):
         light = PyCololight("1.1.1.1")
