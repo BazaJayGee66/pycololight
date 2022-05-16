@@ -323,5 +323,10 @@ class TestPyCololight:
 
         light.state
 
+        mock_send.assert_called_with(
+            b"SZ00\x00\x00\x00\x00\x00\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x02\x01\x01",
+            response=True,
+        )
+
         assert light.on == True
         assert light.brightness == 60

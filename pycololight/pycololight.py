@@ -72,10 +72,10 @@ class PyCololight:
 
     def _get_config(self, config_type):
         if config_type == "command":
-            command_config = f"20000000000000000000000000000000000{self.count}00000000000000000004010301c"
+            command_config = f"20{self.count}4010301c"
             return command_config
         elif config_type == "effect":
-            effect_config = f"23000000000000000000000000000000000{self.count}00000000000000000004010602ff"
+            effect_config = f"23{self.count}4010602ff"
             return effect_config
 
     def _cycle_speed_hex(self, cycle_speed, mode):
@@ -114,18 +114,14 @@ class PyCololight:
 
     @property
     def count(self):
-        count = self._counter
+        count = f"000000000000000000000000000000000{self._counter}0000000000000000000"
         self._toggle_counter()
         return count
 
     @property
     def state(self):
         self._send(
-            bytes.fromhex(
-                "{}1e000000000000000000000000000000000200000000000000000003020101".format(
-                    COMMAND_PREFIX
-                )
-            ),
+            bytes.fromhex(f"{COMMAND_PREFIX}1e{self.count}3020101"),
             response=True,
         )
         data = self._receive()
