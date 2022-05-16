@@ -28,6 +28,10 @@ class DefaultEffectExecption(Exception):
     pass
 
 
+class BrightnessException(Exception):
+    pass
+
+
 class UnavailableException(Exception):
     pass
 
@@ -155,6 +159,8 @@ class PyCololight:
 
     @brightness.setter
     def brightness(self, brightness):
+        if not 0 <= brightness <= 100:
+            raise BrightnessException
         brightness_prefix = "f"
         command = bytes.fromhex(
             "{}{}{}{:02x}".format(

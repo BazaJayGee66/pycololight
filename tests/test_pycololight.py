@@ -6,6 +6,7 @@ from pycololight import (  # pylint: disable=import-error
     ColourSchemeException,
     ModeExecption,
     CycleSpeedException,
+    BrightnessException,
 )
 
 from unittest.mock import patch
@@ -37,6 +38,13 @@ class TestPyCololight:
         )
 
         assert light.brightness == 60
+
+    @patch("pycololight.PyCololight._send")
+    def test_setting_brightness_raises_exception_when_outside_bound(self, mock_send):
+        light = PyCololight("1.1.1.1")
+
+        with pytest.raises(BrightnessException):
+            light.brightness = 130
 
     @patch("pycololight.PyCololight._send")
     def test_setting_colour(self, mock_send):

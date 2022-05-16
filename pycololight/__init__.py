@@ -1,7 +1,10 @@
 from .pycololight import (
     PyCololight,
-    ColourException,
     ColourSchemeException,
-    ModeExecption,
+    ColourException,
     CycleSpeedException,
+    ModeExecption,
+    DefaultEffectExecption,
+    BrightnessException,
+    UnavailableException,
 )
