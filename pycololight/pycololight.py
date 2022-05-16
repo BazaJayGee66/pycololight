@@ -28,6 +28,10 @@ class DefaultEffectExecption(Exception):
     pass
 
 
+class UnavailableException(Exception):
+    pass
+
+
 class PyCololight:
     def __init__(self, host, port=8900, default_effects=True):
         self.host = host
@@ -38,13 +42,33 @@ class PyCololight:
         self._colour = None
         self._effect = None
         self._effects = DEFAULT_EFFECTS.copy() if default_effects else {}
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._sock = None
 
     def _toggle_counter(self):
         self._counter = 2 if self._counter == 1 else 1
 
-    def _send(self, command):
-        self._socket.sendto(command, (self.host, self.port))
+    def _socket_connect(self):
+        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._sock.settimeout(4)
+
+    def _socket_close(self):
+        self._sock.close()
+
+    def _send(self, command, response=False):
+        self._socket_connect()
+        self._sock.sendto(command, (self.host, self.port))
+
+        if not response:
+            self._socket_close()
+
+    def _receive(self):
+        try:
+            data = self._sock.recvfrom(4096)[0]
+            self._socket_close()
+            return data
+        except socket.timeout:
+            self._socket_close()
+            raise UnavailableException
 
     def _get_config(self, config_type):
         if config_type == "command":
@@ -93,6 +117,25 @@ class PyCololight:
         count = self._counter
         self._toggle_counter()
         return count
+
+    @property
+    def state(self):
+        self._send(
+            bytes.fromhex(
+                "{}1e000000000000000000000000000000000200000000000000000003020101".format(
+                    COMMAND_PREFIX
+                )
+            ),
+            response=True,
+        )
+        data = self._receive()
+        if data[40] == 207:
+            self._on = True
+            self._brightness = data[41]
+        elif data[40] == 206:
+            self._on = False
+        else:
+            return
 
     @property
     def on(self):

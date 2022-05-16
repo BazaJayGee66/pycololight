@@ -312,3 +312,16 @@ class TestPyCololight:
             second_effect_call
             == "23000000000000000000000000000000000200000000000000000004010602ff"
         )
+
+    @patch("pycololight.PyCololight._send")
+    @patch("pycololight.PyCololight._receive")
+    def test_state_updates_state_and_brightness(self, mock_receive, mock_send):
+        light = PyCololight("1.1.1.1")
+        assert light.on == False
+
+        mock_receive.return_value = b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
+
+        light.state
+
+        assert light.on == True
+        assert light.brightness == 60
