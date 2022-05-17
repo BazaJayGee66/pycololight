@@ -299,11 +299,11 @@ class TestPyCololight:
 
         assert (
             first_command_call
-            == "20000000000000000000000000000000000100000000000000000004010301c"
+            == "535a3030000000000020000000000000000000000000000000000100000000000000000004010301c"
         )
         assert (
             second_command_call
-            == "20000000000000000000000000000000000200000000000000000004010301c"
+            == "535a3030000000000020000000000000000000000000000000000200000000000000000004010301c"
         )
 
     def test_get_config_returns_config_for_effect(self):
@@ -314,11 +314,26 @@ class TestPyCololight:
 
         assert (
             first_effect_call
-            == "23000000000000000000000000000000000100000000000000000004010602ff"
+            == "535a3030000000000023000000000000000000000000000000000100000000000000000004010602ff"
         )
         assert (
             second_effect_call
-            == "23000000000000000000000000000000000200000000000000000004010602ff"
+            == "535a3030000000000023000000000000000000000000000000000200000000000000000004010602ff"
+        )
+
+    def test_get_config_returns_config_for_state(self):
+        light = PyCololight("1.1.1.1")
+
+        first_effect_call = light._get_config("state")
+        second_effect_call = light._get_config("state")
+
+        assert (
+            first_effect_call
+            == "535a303000000000001e000000000000000000000000000000000100000000000000000003020101"
+        )
+        assert (
+            second_effect_call
+            == "535a303000000000001e000000000000000000000000000000000200000000000000000003020101"
         )
 
     @patch("pycololight.PyCololight._send")
