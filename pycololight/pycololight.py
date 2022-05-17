@@ -212,7 +212,7 @@ class PyCololight:
     def effects(self):
         return list(self._effects.keys())
 
-    def include_default_effects(self, effects):
+    def restore_default_effects(self, effects):
         for effect in effects:
             if effect not in DEFAULT_EFFECTS:
                 raise DefaultEffectExecption

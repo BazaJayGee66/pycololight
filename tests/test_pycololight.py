@@ -267,7 +267,7 @@ class TestPyCololight:
 
         assert light.default_effects == default_effects
 
-    def test_include_default_effects_adds_given_default_effects(self):
+    def test_restore_default_effects_adds_given_default_effects(self):
         light = PyCololight("1.1.1.1", default_effects=False)
 
         effects = [
@@ -276,7 +276,7 @@ class TestPyCololight:
             "Sunrise",
         ]
 
-        light.include_default_effects(effects)
+        light.restore_default_effects(effects)
 
         assert light.effects == effects
 
