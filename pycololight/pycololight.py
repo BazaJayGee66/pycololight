@@ -81,14 +81,13 @@ class PyCololight:
 
     def _get_config(self, config_type):
         if config_type == "command":
-            command_config = f"{COMMAND_PREFIX}20{self._get_counter()}4010301c"
-            return command_config
+            config = f"{COMMAND_PREFIX}20{self._get_counter()}4010301c"
         elif config_type == "effect":
-            effect_config = f"{COMMAND_PREFIX}23{self._get_counter()}4010602ff"
-            return effect_config
+            config = f"{COMMAND_PREFIX}23{self._get_counter()}4010602ff"
         elif config_type == "state":
-            state_config = f"{COMMAND_PREFIX}1e{self._get_counter()}3020101"
-            return state_config
+            config = f"{COMMAND_PREFIX}1e{self._get_counter()}3020101"
+
+        return config
 
     def _cycle_speed_hex(self, cycle_speed, mode):
         if not 1 <= cycle_speed <= 32:
