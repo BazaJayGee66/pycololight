@@ -1,6 +1,6 @@
 [tool.poetry]
 authors = ["BazaJayGee66"]
-description = "A Python3 wrapper for interacting with LifeSmart ColoLight"
+description = "A Python3 wrapper for interacting with LifeSmart Cololight"
 include = ["CHANGELOG.md"]
 license = "MIT"
 name = "pycololight"

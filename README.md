@@ -1,6 +1,6 @@
 # pycololight
 
-A Python3 wrapper for interacting with LifeSmart ColoLight
+A Python3 wrapper for interacting with LifeSmart Cololight
 
 ## Usage
 
