@@ -155,7 +155,7 @@ class PyCololight:
     @on.setter
     def on(self, brightness: int):
         """
-        Turns the device on with desired brightness.
+        Turns the device on with desired brightness, or turns the device off if brightness is 0.
         """
         if brightness:
             self._on = True
