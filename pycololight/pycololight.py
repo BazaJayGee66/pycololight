@@ -37,6 +37,10 @@ class UnavailableException(Exception):
 
 
 class PyCololight:
+    """
+    Cololight wrapper
+    """
+
     def __init__(self, host, port=8900, default_effects=True):
         self.host = host
         self.port = port
@@ -125,6 +129,9 @@ class PyCololight:
 
     @property
     def state(self):
+        """
+        Gets state (on/off) and brightness from device, and updates local state.
+        """
         self._send(
             bytes.fromhex(f"{self._get_config('state')}"),
             response=True,
@@ -140,10 +147,16 @@ class PyCololight:
 
     @property
     def on(self) -> bool:
+        """
+        Returns the current on state.
+        """
         return self._on
 
     @on.setter
     def on(self, brightness: int):
+        """
+        Turns the device on with desired brightness.
+        """
         if brightness:
             self._on = True
             self.brightness = brightness
@@ -154,10 +167,16 @@ class PyCololight:
 
     @property
     def brightness(self) -> int:
+        """
+        Returns the current set brightness.
+        """
         return self._brightness
 
     @brightness.setter
     def brightness(self, brightness: int):
+        """
+        Sets the brightness of the device.
+        """
         if not 0 <= brightness <= 100:
             raise BrightnessException
         brightness_prefix = "f"
@@ -173,10 +192,16 @@ class PyCololight:
 
     @property
     def colour(self) -> tuple:
+        """
+        Returns the current set colour hue.
+        """
         return self._colour
 
     @colour.setter
     def colour(self, colour: tuple):
+        """
+        Sets the colour of the device.
+        """
         colour_prefix = "00"
         command = bytes.fromhex(
             "{}{}{:02x}{:02x}{:02x}".format(
@@ -188,10 +213,16 @@ class PyCololight:
 
     @property
     def effect(self) -> str:
+        """
+        Returns the current set effect name.
+        """
         return self._effect
 
     @effect.setter
     def effect(self, effect: str):
+        """
+        Set the effect of the device.
+        """
         command = bytes.fromhex(
             "{}{}".format(
                 self._get_config("effect"),
@@ -203,13 +234,22 @@ class PyCololight:
 
     @property
     def default_effects(self) -> list:
+        """
+        Returns a list of names of the default effects for the device.
+        """
         return list(DEFAULT_EFFECTS.keys())
 
     @property
     def effects(self) -> list:
+        """
+        Returns a list of names of the effects saved for the device.
+        """
         return list(self._effects.keys())
 
     def restore_default_effects(self, effects: list):
+        """
+        Restors the given default effects, to the saved effects of the device.
+        """
         for effect in effects:
             if effect not in DEFAULT_EFFECTS:
                 raise DefaultEffectExecption
@@ -219,6 +259,9 @@ class PyCololight:
     def add_custom_effect(
         self, name: str, colour_scheme: str, colour: str, cycle_speed: int, mode: int
     ):
+        """
+        Adds a custom effect, to the saved effects of the device.
+        """
         cycle_speed_hex = self._cycle_speed_hex(int(cycle_speed), int(mode))
         colour_hex = self._colour_hex(colour_scheme, colour, int(mode))
         mode_hex = self._mode_hex(int(mode))
@@ -236,7 +279,13 @@ class PyCololight:
         self._effects[name] = custom_effect_hex
 
     def custom_effect_colour_schemes(self) -> list:
+        """
+        Returns a list of the available colour schemes for custom efects.
+        """
         return list(CUSTOM_EFFECT_COLOURS.keys())
 
     def custom_effect_colour_scheme_colours(self, colour_scheme) -> list:
+        """
+        Returns a list of the available colours for a given colour schemes for custom efects.
+        """
         return list(filter(None, CUSTOM_EFFECT_COLOURS[colour_scheme]["colours"]))
