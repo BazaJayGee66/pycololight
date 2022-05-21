@@ -51,6 +51,11 @@ class PyCololight:
     def _toggle_counter(self):
         self._counter = 2 if self._counter == 1 else 1
 
+    def _get_counter(self):
+        count = f"000000000000000000000000000000000{self._counter}0000000000000000000"
+        self._toggle_counter()
+        return count
+
     def _socket_connect(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.settimeout(4)
@@ -76,13 +81,13 @@ class PyCololight:
 
     def _get_config(self, config_type):
         if config_type == "command":
-            command_config = f"{COMMAND_PREFIX}20{self.count}4010301c"
+            command_config = f"{COMMAND_PREFIX}20{self._get_counter()}4010301c"
             return command_config
         elif config_type == "effect":
-            effect_config = f"{COMMAND_PREFIX}23{self.count}4010602ff"
+            effect_config = f"{COMMAND_PREFIX}23{self._get_counter()}4010602ff"
             return effect_config
         elif config_type == "state":
-            state_config = f"{COMMAND_PREFIX}1e{self.count}3020101"
+            state_config = f"{COMMAND_PREFIX}1e{self._get_counter()}3020101"
             return state_config
 
     def _cycle_speed_hex(self, cycle_speed, mode):
@@ -118,12 +123,6 @@ class PyCololight:
             raise ModeExecption
 
         return CUSTOM_EFFECT_MODES[mode - 1]
-
-    @property
-    def count(self):
-        count = f"000000000000000000000000000000000{self._counter}0000000000000000000"
-        self._toggle_counter()
-        return count
 
     @property
     def state(self):
