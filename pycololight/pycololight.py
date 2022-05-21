@@ -139,11 +139,11 @@ class PyCololight:
             return
 
     @property
-    def on(self):
+    def on(self) -> bool:
         return self._on
 
     @on.setter
-    def on(self, brightness):
+    def on(self, brightness: int):
         if brightness:
             self._on = True
             self.brightness = brightness
@@ -153,11 +153,11 @@ class PyCololight:
             self._send(command)
 
     @property
-    def brightness(self):
+    def brightness(self) -> int:
         return self._brightness
 
     @brightness.setter
-    def brightness(self, brightness):
+    def brightness(self, brightness: int):
         if not 0 <= brightness <= 100:
             raise BrightnessException
         brightness_prefix = "f"
@@ -172,11 +172,11 @@ class PyCololight:
         self._send(command)
 
     @property
-    def colour(self):
+    def colour(self) -> tuple:
         return self._colour
 
     @colour.setter
-    def colour(self, colour):
+    def colour(self, colour: tuple):
         colour_prefix = "00"
         command = bytes.fromhex(
             "{}{}{:02x}{:02x}{:02x}".format(
@@ -187,11 +187,11 @@ class PyCololight:
         self._send(command)
 
     @property
-    def effect(self):
+    def effect(self) -> str:
         return self._effect
 
     @effect.setter
-    def effect(self, effect):
+    def effect(self, effect: str):
         command = bytes.fromhex(
             "{}{}".format(
                 self._get_config("effect"),
@@ -202,21 +202,23 @@ class PyCololight:
         self._send(command)
 
     @property
-    def default_effects(self):
+    def default_effects(self) -> list:
         return list(DEFAULT_EFFECTS.keys())
 
     @property
-    def effects(self):
+    def effects(self) -> list:
         return list(self._effects.keys())
 
-    def restore_default_effects(self, effects):
+    def restore_default_effects(self, effects: list):
         for effect in effects:
             if effect not in DEFAULT_EFFECTS:
                 raise DefaultEffectExecption
 
             self._effects[effect] = DEFAULT_EFFECTS[effect]
 
-    def add_custom_effect(self, name, colour_scheme, colour, cycle_speed, mode):
+    def add_custom_effect(
+        self, name: str, colour_scheme: str, colour: str, cycle_speed: int, mode: int
+    ):
         cycle_speed_hex = self._cycle_speed_hex(int(cycle_speed), int(mode))
         colour_hex = self._colour_hex(colour_scheme, colour, int(mode))
         mode_hex = self._mode_hex(int(mode))
@@ -233,8 +235,8 @@ class PyCololight:
 
         self._effects[name] = custom_effect_hex
 
-    def custom_effect_colour_schemes(self):
+    def custom_effect_colour_schemes(self) -> list:
         return list(CUSTOM_EFFECT_COLOURS.keys())
 
-    def custom_effect_colour_scheme_colours(self, colour_scheme):
+    def custom_effect_colour_scheme_colours(self, colour_scheme) -> list:
         return list(filter(None, CUSTOM_EFFECT_COLOURS[colour_scheme]["colours"]))
