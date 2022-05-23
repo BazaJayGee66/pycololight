@@ -5,6 +5,10 @@ from .constants import (
 )
 
 
+class DefaultEffectExecption(Exception):
+    pass
+
+
 class Effects:
     """
     Effects for cololight deveices
@@ -23,8 +27,18 @@ class Effects:
         return self._effects
 
     @property
-    def default_effects(self) -> list:
+    def default_effects(self) -> dict:
         """
-        Returns a list of names of the default effects for the device.
+        Returns a dict of default effects with names and command hex values for the device.
         """
-        return list(self._default_effects.keys())
+        return self._default_effects
+
+    def restore_default_effects(self, effects: list):
+        """
+        Restors the given default effects, to the saved effects of the device.
+        """
+        for effect in effects:
+            if effect not in self.default_effects:
+                raise DefaultEffectExecption
+
+            self._effects[effect] = self.default_effects[effect]
