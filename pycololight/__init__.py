@@ -8,3 +8,7 @@ from .pycololight import (
     BrightnessException,
     UnavailableException,
 )
+
+from .effects import (
+    Effects,
+)
