@@ -42,3 +42,15 @@ class Effects:
                 raise DefaultEffectExecption
 
             self._effects[effect] = self.default_effects[effect]
+
+    def custom_effect_colour_schemes(self) -> list:
+        """
+        Returns a list of the available colour schemes for custom efects.
+        """
+        return list(CUSTOM_EFFECT_COLOURS.keys())
+
+    def custom_effect_colour_scheme_colours(self, colour_scheme) -> list:
+        """
+        Returns a list of the available colours for a given colour schemes for custom efects.
+        """
+        return list(filter(None, CUSTOM_EFFECT_COLOURS[colour_scheme]["colours"]))

@@ -75,3 +75,38 @@ class TestEffects:
 
         with pytest.raises(DefaultEffectExecption):
             effects.restore_default_effects(restore_effects)
+
+    def test_custom_effect_colour_schemes_returns_supported_colour_schemes(self):
+        effects = Effects(device="hexigon")
+
+        supported_colour_schemes = [
+            "Breath",
+            "Shadow",
+            "Flash",
+            "Flicker",
+            "Scene",
+            "Mood",
+            "Selected",
+        ]
+
+        assert effects.custom_effect_colour_schemes() == supported_colour_schemes
+
+    def test_custom_effect_colour_scheme_colours_returns_colour_scheme_colours(self):
+        effects = Effects(device="hexigon")
+
+        expected_colours = [
+            "Red, Green, Blue",
+            "Rainbow",
+            "Green",
+            "Azure",
+            "Blue",
+            "Purple",
+            "Red",
+            "Orange",
+            "Yellow",
+            "White",
+        ]
+
+        assert (
+            effects.custom_effect_colour_scheme_colours("Flicker") == expected_colours
+        )
