@@ -5,10 +5,6 @@ from .constants import (
 )
 
 
-class DefaultEffectExecption(Exception):
-    pass
-
-
 class CycleSpeedException(Exception):
     pass
 
@@ -27,12 +23,11 @@ class ModeExecption(Exception):
 
 class Effects:
     """
-    Effects for cololight deveices
+    Effects for cololight devices
     """
 
-    def __init__(self, device, default_effects=True) -> None:
-        self.device = device
-        self._effects = DEFAULT_EFFECTS.copy() if default_effects else {}
+    def __init__(self, device) -> None:
+        self._device = device
         self._default_effects = DEFAULT_EFFECTS.copy()
 
     def _cycle_speed_hex(self, cycle_speed, mode):
@@ -70,34 +65,17 @@ class Effects:
         return CUSTOM_EFFECT_MODES[mode - 1]
 
     @property
-    def effects(self) -> dict:
-        """
-        Returns a dict of effects with names and command hex values saved for the device.
-        """
-        return self._effects
-
-    @property
     def default_effects(self) -> dict:
         """
         Returns a dict of default effects with names and command hex values for the device.
         """
         return self._default_effects
 
-    def restore_default_effects(self, effects: list) -> None:
+    def custom_effect_command(
+        self, colour_scheme: str, colour: str, cycle_speed: int, mode: int
+    ) -> str:
         """
-        Restors the given default effects, to the saved effects of the device.
-        """
-        for effect in effects:
-            if effect not in self.default_effects:
-                raise DefaultEffectExecption
-
-            self._effects[effect] = self.default_effects[effect]
-
-    def add_custom_effect(
-        self, name: str, colour_scheme: str, colour: str, cycle_speed: int, mode: int
-    ) -> None:
-        """
-        Adds a custom effect, to the saved effects of the device.
+        Returns command hex for custom effect.
         """
         cycle_speed_hex = self._cycle_speed_hex(int(cycle_speed), int(mode))
         colour_hex = self._colour_hex(colour_scheme, colour, int(mode))
@@ -113,7 +91,7 @@ class Effects:
                 f"{mode_hex[0]}{colour_hex}{cycle_speed_hex}{mode_hex[1]}"
             )
 
-        self._effects[name] = custom_effect_hex
+        return custom_effect_hex
 
     def custom_effect_colour_schemes(self) -> list:
         """

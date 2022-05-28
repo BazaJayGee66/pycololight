@@ -11,7 +11,6 @@ from .pycololight import (
 
 from .effects import (
     Effects,
-    DefaultEffectExecption,
     CycleSpeedException,
     ColourSchemeException,
     ColourException,
