@@ -2,17 +2,18 @@ import pytest
 
 from pycololight import (  # pylint: disable=import-error
     PyCololight,
-    ColourException,
-    ColourSchemeException,
-    ModeExecption,
-    CycleSpeedException,
     BrightnessException,
+    UnsupportedDevice,
 )
 
 from unittest.mock import patch
 
 
 class TestPyCololight:
+    def test_raises_exception_when_device_not_supported(self):
+        with pytest.raises(UnsupportedDevice):
+            PyCololight(device="fake", host="1.1.1.1")
+
     @patch("pycololight.PyCololight._send")
     def test_turn_on(self, mock_send):
         light = PyCololight(device="hexigon", host="1.1.1.1")

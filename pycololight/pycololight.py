@@ -19,12 +19,18 @@ class UnavailableException(Exception):
     pass
 
 
+class UnsupportedDevice(Exception):
+    pass
+
+
 class PyCololight:
     """
     Cololight wrapper
     """
 
     def __init__(self, device, host, port=8900, default_effects=True):
+        self.supported_devices = ["hexigon"]
+        self.device = self._check_supported_devices(device)
         self.host = host
         self.port = port
         self._counter = 1
@@ -35,6 +41,12 @@ class PyCololight:
         self._device_effects = Effects(device)
         self._effects = self._device_effects.default_effects if default_effects else {}
         self._sock = None
+
+    def _check_supported_devices(self, device):
+        if device not in self.supported_devices:
+            raise UnsupportedDevice
+        else:
+            return device
 
     def _toggle_counter(self):
         self._counter = 2 if self._counter == 1 else 1
