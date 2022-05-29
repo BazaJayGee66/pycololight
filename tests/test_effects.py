@@ -18,18 +18,18 @@ class TestEffects:
         effects = Effects(device="hexigon")
 
         expected_default_effects = {
-            "80s Club": "049a0000",
-            "Cherry Blossom": "04940800",
-            "Cocktail Parade": "05bd0690",
-            "Instagrammer": "03bc0190",
-            "Pensieve": "04c40600",
-            "Savasana": "04970400",
-            "Sunrise": "01c10a00",
-            "The Circus": "04810130",
-            "Unicorns": "049a0e00",
-            "Christmas": "068b0900",
-            "Rainbow Flow": "03810690",
-            "Music Mode": "07bd0990",
+            "80s Club": ["049a0000"],
+            "Cherry Blossom": ["04940800"],
+            "Cocktail Parade": ["05bd0690"],
+            "Instagrammer": ["03bc0190"],
+            "Pensieve": ["04c40600"],
+            "Savasana": ["04970400"],
+            "Sunrise": ["01c10a00"],
+            "The Circus": ["04810130"],
+            "Unicorns": ["049a0e00"],
+            "Christmas": ["068b0900"],
+            "Rainbow Flow": ["03810690"],
+            "Music Mode": ["07bd0990"],
         }
 
         assert effects.default_effects == expected_default_effects

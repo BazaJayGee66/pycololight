@@ -28,7 +28,9 @@ class PyCololight:
     Cololight wrapper
     """
 
-    def __init__(self, device, host, port=8900, default_effects=True):
+    def __init__(
+        self, device, host, port=8900, default_effects=True, dynamic_effects=False
+    ):
         self.supported_devices = ["hexigon", "strip"]
         self.device = self._check_supported_devices(device)
         self.host = host
@@ -39,7 +41,7 @@ class PyCololight:
         self._colour = None
         self._effect = None
         self._device_effects = Effects(device)
-        self._effects = self._device_effects.default_effects if default_effects else {}
+        self._effects = self._initial_effects(default_effects, dynamic_effects)
         self._sock = None
 
     def _check_supported_devices(self, device):
@@ -47,6 +49,16 @@ class PyCololight:
             raise UnsupportedDevice
         else:
             return device
+
+    def _initial_effects(self, default_effects, dynamic_effects):
+        initial_effects = {}
+
+        if default_effects:
+            initial_effects.update(self._device_effects.default_effects)
+        if dynamic_effects:
+            initial_effects.update(self._device_effects.dynamic_effects)
+
+        return initial_effects
 
     def _toggle_counter(self):
         self._counter = 2 if self._counter == 1 else 1
@@ -186,14 +198,18 @@ class PyCololight:
         """
         Set the effect of the device.
         """
-        command = bytes.fromhex(
-            "{}{}".format(
-                self._get_config("effect"),
-                self._effects[effect],
+        effect_commands = self._effects[effect]
+        commands = []
+        for effect_command in effect_commands:
+            command = bytes.fromhex(
+                "{}{}".format(
+                    self._get_config("effect"),
+                    effect_command,
+                )
             )
-        )
+            commands.append(command)
         self._effect = effect
-        self._send([command])
+        self._send(commands)
 
     @property
     def default_effects(self) -> list:
@@ -236,7 +252,7 @@ class PyCololight:
             colour_scheme, colour, cycle_speed, mode
         )
 
-        self._effects[name] = custom_effect_hex
+        self._effects[name] = [custom_effect_hex]
 
     def custom_effect_colour_schemes(self) -> list:
         """
