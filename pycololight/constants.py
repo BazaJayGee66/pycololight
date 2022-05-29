@@ -154,5 +154,16 @@ STRIP_DYANMIC_EFFECTS = {
         "93ffaf00",
         "9300c3ff",
         "93ff0091",
-    ]
+    ],
+    "Color train": ["069a0d00"],
+    "Snow": ["058908c0"],
+    "White link": ["06a20e00"],
+    "Tron": [
+        "93fefefe",
+        "9304058b",
+        "93f0b003",
+        "93ff0000",
+        "930087ff",
+        "9300ff64",
+    ],
 }
