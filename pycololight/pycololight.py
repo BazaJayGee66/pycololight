@@ -63,9 +63,10 @@ class PyCololight:
     def _socket_close(self):
         self._sock.close()
 
-    def _send(self, command, response=False):
+    def _send(self, commands, response=False):
         self._socket_connect()
-        self._sock.sendto(command, (self.host, self.port))
+        for command in commands:
+            self._sock.sendto(command, (self.host, self.port))
 
         if not response:
             self._socket_close()
@@ -95,7 +96,7 @@ class PyCololight:
         Gets state (on/off) and brightness from device, and updates local state.
         """
         self._send(
-            bytes.fromhex(f"{self._get_config('state')}"),
+            [bytes.fromhex(f"{self._get_config('state')}")],
             response=True,
         )
         data = self._receive()
@@ -125,7 +126,7 @@ class PyCololight:
         else:
             self._on = False
             command = bytes.fromhex("{}{}".format(self._get_config("command"), "e1e"))
-            self._send(command)
+            self._send([command])
 
     @property
     def brightness(self) -> int:
@@ -150,7 +151,7 @@ class PyCololight:
             )
         )
         self._brightness = brightness
-        self._send(command)
+        self._send([command])
 
     @property
     def colour(self) -> tuple:
@@ -171,7 +172,7 @@ class PyCololight:
             )
         )
         self._colour = colour
-        self._send(command)
+        self._send([command])
 
     @property
     def effect(self) -> str:
@@ -192,7 +193,7 @@ class PyCololight:
             )
         )
         self._effect = effect
-        self._send(command)
+        self._send([command])
 
     @property
     def default_effects(self) -> list:
