@@ -31,7 +31,7 @@ class PyCololight:
     def __init__(
         self, device, host, port=8900, default_effects=True, dynamic_effects=False
     ):
-        self.supported_devices = ["hexigon", "strip"]
+        self.supported_devices = ["hexagon", "strip"]
         self.device = self._check_supported_devices(device)
         self.host = host
         self.port = port

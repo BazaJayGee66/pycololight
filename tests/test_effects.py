@@ -15,7 +15,7 @@ from pycololight.constants import (
 
 class TestEffects:
     def test_default_effects_returns_dict_default_effects(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         expected_default_effects = {
             "80s Club": ["049a0000"],
@@ -35,7 +35,7 @@ class TestEffects:
         assert effects.default_effects == expected_default_effects
 
     def test_custom_effect_colour_schemes_returns_supported_colour_schemes(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         supported_colour_schemes = [
             "Breath",
@@ -50,7 +50,7 @@ class TestEffects:
         assert effects.custom_effect_colour_schemes() == supported_colour_schemes
 
     def test_custom_effect_colour_scheme_colours_returns_colour_scheme_colours(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         expected_colours = [
             "Red, Green, Blue",
@@ -70,31 +70,31 @@ class TestEffects:
         )
 
     def test_colour_hex_raises_exception_when_bad_scheme(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         with pytest.raises(ColourSchemeException):
             effects._colour_hex("bad_scheme", "colour", 1)
 
     def test_colour_hex_raises_exception_when_bad_colour(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         with pytest.raises(ColourException):
             effects._colour_hex("Mood", "bad_colour", 1)
 
     def test_cycle_speed_hex_raises_exception_when_bad_speed(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         with pytest.raises(CycleSpeedException):
             effects._cycle_speed_hex(35, 1)
 
     def test_mode_hex_raises_exception_when_bad_mode(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         with pytest.raises(ModeExecption):
             effects._mode_hex(0)
 
     def test_cycle_speed_hex_returns_hex_value(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         expected_responses = ["01", "20", "0d", "0b"]
 
@@ -107,7 +107,7 @@ class TestEffects:
             assert cycle_speed_hex == expected_responses[index]
 
     def test_mode_hex_returns_tuple_of_hex_values(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         expected_responses = [("05", "10"), ("05", "80"), ("06", "10"), ("06", "70")]
 
@@ -118,7 +118,7 @@ class TestEffects:
             assert mode_hex == expected_responses[index]
 
     def test_colour_hex_returns_hex_value(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         expected_responses = ["80", "06", "a6", "b4", "bf", "c1", "c3"]
 
@@ -137,7 +137,7 @@ class TestEffects:
             assert colour_hex == expected_responses[index]
 
     def test_custom_effect_command_returns_effect_command_hex(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         effect_colour_schema = "Mood"
         effect_colour = "Orange"
@@ -154,7 +154,7 @@ class TestEffects:
         assert custom_effect_command == "01b41600"
 
     def test_custom_effect_command_returns_effect_hex_when_mode_is_2(self):
-        effects = Effects(device="hexigon")
+        effects = Effects(device="hexagon")
 
         effect_colour_schema = "Mood"
         effect_colour = "Orange"
@@ -171,11 +171,11 @@ class TestEffects:
         assert custom_effect_command == "0213b400"
 
     def test_dynamic_effects_returns_dict_dynamic_effects(self):
-        hexigon_effects = Effects(device="hexigon")
+        hexagon_effects = Effects(device="hexagon")
         strip_effects = Effects(device="strip")
 
-        expected_hexigon_dynamic_effects = {}
+        expected_hexagon_dynamic_effects = {}
         expected_strip_dynamic_effects = STRIP_DYANMIC_EFFECTS
 
-        assert hexigon_effects.dynamic_effects == expected_hexigon_dynamic_effects
+        assert hexagon_effects.dynamic_effects == expected_hexagon_dynamic_effects
         assert strip_effects.dynamic_effects == expected_strip_dynamic_effects

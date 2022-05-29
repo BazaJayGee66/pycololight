@@ -16,7 +16,7 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_turn_on(self, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.on == False
 
         light.on = 60
@@ -32,7 +32,7 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_setting_brightness(self, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         light.brightness = 60
 
@@ -46,14 +46,14 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_setting_brightness_raises_exception_when_outside_bound(self, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         with pytest.raises(BrightnessException):
             light.brightness = 130
 
     @patch("pycololight.PyCololight._send")
     def test_setting_colour(self, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.colour == None
 
         light.colour = (255, 127, 255)
@@ -68,7 +68,7 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_setting_effect(self, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.effect == None
 
         light.effect = "Sunrise"
@@ -81,7 +81,7 @@ class TestPyCololight:
         assert light.effect == "Sunrise"
 
     def test_effects_returns_list_of_effects(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         default_effects = [
             "80s Club",
             "Cherry Blossom",
@@ -101,7 +101,7 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_turn_off(self, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         light._on = True
 
         light.on = 0
@@ -114,7 +114,7 @@ class TestPyCololight:
         assert light.on == False
 
     def test_add_custom_effect_adds_effect(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         effect_name = "test_effect"
         effect_colour_schema = "Mood"
@@ -134,7 +134,7 @@ class TestPyCololight:
         assert light._effects[effect_name] == ["01b41600"]
 
     def test_add_custom_effect_adds_effect_when_mode_is_2(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         effect_name = "test_effect"
         effect_colour_schema = "Mood"
@@ -154,7 +154,7 @@ class TestPyCololight:
         assert light._effects[effect_name] == ["0213b400"]
 
     def test_custom_effect_colour_schemes_returns_supported_colour_schemes(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         supported_colour_schemes = [
             "Breath",
@@ -169,7 +169,7 @@ class TestPyCololight:
         assert light.custom_effect_colour_schemes() == supported_colour_schemes
 
     def test_custom_effect_colour_scheme_colours_returns_colour_scheme_colours(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         expected_colours = [
             "Red, Green, Blue",
@@ -187,12 +187,12 @@ class TestPyCololight:
         assert light.custom_effect_colour_scheme_colours("Flicker") == expected_colours
 
     def test_excluding_defualt_effects(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1", default_effects=False)
+        light = PyCololight(device="hexagon", host="1.1.1.1", default_effects=False)
 
         assert light.effects == []
 
     def test_default_effects_returns_list_of_default_effects(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         default_effects = [
             "80s Club",
@@ -212,17 +212,17 @@ class TestPyCololight:
         assert light.default_effects == default_effects
 
     def test_dynamic_effects_returns_list_of_dynamic_effects(self):
-        hexigon_light = PyCololight(device="hexigon", host="1.1.1.1")
+        hexagon_light = PyCololight(device="hexagon", host="1.1.1.1")
         strip_light = PyCololight(device="strip", host="1.1.1.1")
 
-        hexigon_dynamic_effects = []
+        hexagon_dynamic_effects = []
         strip_dynamic_effects = ["Graffiti"]
 
-        assert hexigon_light.dynamic_effects == hexigon_dynamic_effects
+        assert hexagon_light.dynamic_effects == hexagon_dynamic_effects
         assert strip_light.dynamic_effects == strip_dynamic_effects
 
     def test_restore_default_effects_adds_given_default_effects(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1", default_effects=False)
+        light = PyCololight(device="hexagon", host="1.1.1.1", default_effects=False)
 
         effects = [
             "Pensieve",
@@ -235,7 +235,7 @@ class TestPyCololight:
         assert light.effects == effects
 
     def test_counter_returns_boolen_counter(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         assert light._counter == 1
 
@@ -246,7 +246,7 @@ class TestPyCololight:
         assert light._counter == 1
 
     def test_get_config_returns_config_for_command(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         first_command_call = light._get_config("command")
         second_command_call = light._get_config("command")
@@ -261,7 +261,7 @@ class TestPyCololight:
         )
 
     def test_get_config_returns_config_for_effect(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         first_effect_call = light._get_config("effect")
         second_effect_call = light._get_config("effect")
@@ -276,7 +276,7 @@ class TestPyCololight:
         )
 
     def test_get_config_returns_config_for_state(self):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         first_effect_call = light._get_config("state")
         second_effect_call = light._get_config("state")
@@ -293,7 +293,7 @@ class TestPyCololight:
     @patch("pycololight.PyCololight._send")
     @patch("pycololight.PyCololight._receive")
     def test_state_updates_state_and_brightness(self, mock_receive, mock_send):
-        light = PyCololight(device="hexigon", host="1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.on == False
 
         mock_receive.return_value = b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
