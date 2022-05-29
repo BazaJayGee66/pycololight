@@ -3,7 +3,7 @@ from .pycololight import (
     DefaultEffectExecption,
     BrightnessException,
     UnavailableException,
-    UnsupportedDevice,
+    UnsupportedDeviceException,
 )
 
 from .effects import (

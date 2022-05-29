@@ -3,7 +3,7 @@ import pytest
 from pycololight import (  # pylint: disable=import-error
     PyCololight,
     BrightnessException,
-    UnsupportedDevice,
+    UnsupportedDeviceException,
 )
 
 from unittest.mock import patch
@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 class TestPyCololight:
     def test_raises_exception_when_device_not_supported(self):
-        with pytest.raises(UnsupportedDevice):
+        with pytest.raises(UnsupportedDeviceException):
             PyCololight(device="fake", host="1.1.1.1")
 
     @patch("pycololight.PyCololight._send")

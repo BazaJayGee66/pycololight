@@ -19,7 +19,7 @@ class UnavailableException(Exception):
     pass
 
 
-class UnsupportedDevice(Exception):
+class UnsupportedDeviceException(Exception):
     pass
 
 
@@ -46,7 +46,7 @@ class PyCololight:
 
     def _check_supported_devices(self, device):
         if device not in self.supported_devices:
-            raise UnsupportedDevice
+            raise UnsupportedDeviceException
         else:
             return device
 
