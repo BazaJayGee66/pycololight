@@ -2,11 +2,14 @@ import pytest
 
 from pycololight import (
     Effects,
-    DefaultEffectExecption,
     ColourSchemeException,
     ColourException,
     CycleSpeedException,
     ModeExecption,
+)  # pylint: disable=import-error
+
+from pycololight.constants import (
+    STRIP_DYANMIC_EFFECTS,
 )  # pylint: disable=import-error
 
 
@@ -166,3 +169,13 @@ class TestEffects:
         )
 
         assert custom_effect_command == "0213b400"
+
+    def test_dynamic_effects_returns_dict_dynamic_effects(self):
+        hexigon_effects = Effects(device="hexigon")
+        strip_effects = Effects(device="strip")
+
+        expected_hexigon_dynamic_effects = {}
+        expected_strip_dynamic_effects = STRIP_DYANMIC_EFFECTS
+
+        assert hexigon_effects.dynamic_effects == expected_hexigon_dynamic_effects
+        assert strip_effects.dynamic_effects == expected_strip_dynamic_effects

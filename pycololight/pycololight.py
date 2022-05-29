@@ -29,7 +29,7 @@ class PyCololight:
     """
 
     def __init__(self, device, host, port=8900, default_effects=True):
-        self.supported_devices = ["hexigon"]
+        self.supported_devices = ["hexigon", "strip"]
         self.device = self._check_supported_devices(device)
         self.host = host
         self.port = port
@@ -200,6 +200,13 @@ class PyCololight:
         Returns a list of names of the default effects for the device.
         """
         return list(self._device_effects.default_effects.keys())
+
+    @property
+    def dynamic_effects(self) -> list:
+        """
+        Returns a list of names of the dynamic effects for the device.
+        """
+        return list(self._device_effects.dynamic_effects.keys())
 
     @property
     def effects(self) -> list:

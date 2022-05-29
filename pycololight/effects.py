@@ -2,6 +2,7 @@ from .constants import (
     CUSTOM_EFFECT_COLOURS,
     CUSTOM_EFFECT_MODES,
     DEFAULT_EFFECTS,
+    STRIP_DYANMIC_EFFECTS,
 )
 
 
@@ -29,6 +30,7 @@ class Effects:
     def __init__(self, device) -> None:
         self._device = device
         self._default_effects = DEFAULT_EFFECTS.copy()
+        self._dynamic_effects = self._device_dynamic_effects()
 
     def _cycle_speed_hex(self, cycle_speed, mode):
         if not 1 <= cycle_speed <= 32:
@@ -64,12 +66,27 @@ class Effects:
 
         return CUSTOM_EFFECT_MODES[mode - 1]
 
+    def _device_dynamic_effects(self):
+        if self._device == "strip":
+            dynamic_effects = STRIP_DYANMIC_EFFECTS
+        else:
+            dynamic_effects = {}
+
+        return dynamic_effects
+
     @property
     def default_effects(self) -> dict:
         """
         Returns a dict of default effects with names and command hex values for the device.
         """
         return self._default_effects
+
+    @property
+    def dynamic_effects(self) -> dict:
+        """
+        Returns a dict of dynamic effects with names and command hex values for the device.
+        """
+        return self._dynamic_effects
 
     def custom_effect_command(
         self, colour_scheme: str, colour: str, cycle_speed: int, mode: int

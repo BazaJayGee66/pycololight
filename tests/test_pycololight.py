@@ -201,6 +201,16 @@ class TestPyCololight:
 
         assert light.default_effects == default_effects
 
+    def test_dynamic_effects_returns_list_of_dynamic_effects(self):
+        hexigon_light = PyCololight(device="hexigon", host="1.1.1.1")
+        strip_light = PyCololight(device="strip", host="1.1.1.1")
+
+        hexigon_dynamic_effects = []
+        strip_dynamic_effects = ["Graffiti"]
+
+        assert hexigon_light.dynamic_effects == hexigon_dynamic_effects
+        assert strip_light.dynamic_effects == strip_dynamic_effects
+
     def test_restore_default_effects_adds_given_default_effects(self):
         light = PyCololight(device="hexigon", host="1.1.1.1", default_effects=False)
 

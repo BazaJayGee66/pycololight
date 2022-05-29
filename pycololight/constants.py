@@ -144,3 +144,15 @@ DEFAULT_EFFECTS = {
     "Rainbow Flow": "03810690",
     "Music Mode": "07bd0990",
 }
+
+STRIP_DYANMIC_EFFECTS = {
+    "Graffiti": [
+        "93fefefe",
+        "9305088c",
+        "93f0a003",
+        "93fa00ff",
+        "93ffaf00",
+        "9300c3ff",
+        "93ff0091",
+    ]
+}
