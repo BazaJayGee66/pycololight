@@ -1,13 +1,18 @@
 # pycololight
 
-A Python3 wrapper for interacting with LifeSmart Cololight
+A Python3 wrapper for interacting with LifeSmart Cololight.
+
+Supports the following cololight devices:
+
+- hexagon
+- strip
 
 ## Usage
 
 ```python
 from pycololight import PyCololight
 
-light = PyCololight(host="1.1.1.1")
+light = PyCololight(device="hexagon", host="1.1.1.1")
 
 # Turn on at 60% brightness
 light.on = 60
