@@ -216,21 +216,23 @@ class TestPyCololight:
         strip_light = PyCololight(device="strip", host="1.1.1.1")
 
         hexagon_dynamic_effects = []
-        strip_dynamic_effects = ["Graffiti"]
+        strip_dynamic_effects = [
+            "Graffiti",
+            "Color train",
+            "Snow",
+            "White link",
+            "Tron",
+        ]
 
         assert hexagon_light.dynamic_effects == hexagon_dynamic_effects
         assert strip_light.dynamic_effects == strip_dynamic_effects
 
     def test_restore_default_effects_adds_given_default_effects(self):
-        light = PyCololight(device="hexagon", host="1.1.1.1", default_effects=False)
+        light = PyCololight(device="strip", host="1.1.1.1", default_effects=False)
 
-        effects = [
-            "Pensieve",
-            "Savasana",
-            "Sunrise",
-        ]
+        effects = ["Pensieve", "Savasana", "Sunrise", "Tron"]
 
-        light.restore_default_effects(effects)
+        light.restore_effects(effects)
 
         assert light.effects == effects
 

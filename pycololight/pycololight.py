@@ -232,15 +232,15 @@ class PyCololight:
         """
         return list(self._effects.keys())
 
-    def restore_default_effects(self, effects: list):
+    def restore_effects(self, effects: list):
         """
-        Restors the given default effects, to the saved effects of the device.
+        Restors the given default/dynamic effects, to the saved effects of the device.
         """
         for effect in effects:
-            if effect not in self._device_effects.default_effects:
+            if effect not in self._device_effects.effects.keys():
                 raise DefaultEffectExecption
 
-            self._effects[effect] = self._device_effects.default_effects[effect]
+            self._effects[effect] = self._device_effects.effects[effect]
 
     def add_custom_effect(
         self, name: str, colour_scheme: str, colour: str, cycle_speed: int, mode: int

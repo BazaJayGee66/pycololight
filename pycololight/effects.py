@@ -68,7 +68,7 @@ class Effects:
 
     def _device_dynamic_effects(self):
         if self._device == "strip":
-            dynamic_effects = STRIP_DYANMIC_EFFECTS
+            dynamic_effects = STRIP_DYANMIC_EFFECTS.copy()
         else:
             dynamic_effects = {}
 
@@ -87,6 +87,14 @@ class Effects:
         Returns a dict of dynamic effects with names and command hex values for the device.
         """
         return self._dynamic_effects
+
+    @property
+    def effects(self) -> dict:
+        """
+        Return a dict of all effects with names and command hex values for the device.
+        """
+        all_effects = {**self.default_effects, **self.dynamic_effects}
+        return all_effects
 
     def custom_effect_command(
         self, colour_scheme: str, colour: str, cycle_speed: int, mode: int
