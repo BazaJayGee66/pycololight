@@ -6,6 +6,8 @@ from pycololight import (  # pylint: disable=import-error
     UnsupportedDeviceException,
 )
 
+from pycololight.constants import STRIP_DYANMIC_EFFECTS
+
 from unittest.mock import patch
 
 
@@ -216,13 +218,7 @@ class TestPyCololight:
         strip_light = PyCololight(device="strip", host="1.1.1.1")
 
         hexagon_dynamic_effects = []
-        strip_dynamic_effects = [
-            "Graffiti",
-            "Color train",
-            "Snow",
-            "White link",
-            "Tron",
-        ]
+        strip_dynamic_effects = list(STRIP_DYANMIC_EFFECTS.keys())
 
         assert hexagon_light.dynamic_effects == hexagon_dynamic_effects
         assert strip_light.dynamic_effects == strip_dynamic_effects

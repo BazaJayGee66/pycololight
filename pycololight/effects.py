@@ -55,7 +55,7 @@ class Effects:
 
         starting_decimal = CUSTOM_EFFECT_COLOURS[colour_scheme]["decimal"]
         colour_key = CUSTOM_EFFECT_COLOURS[colour_scheme]["colours"].index(colour)
-        if mode in [13, 14, 15, 22, 23, 24]:
+        if self._device_mode_lower(mode):
             # These modes have a lower starting decimal of 128
             starting_decimal = starting_decimal - 128
         colour_decimal = starting_decimal + colour_key
@@ -83,6 +83,17 @@ class Effects:
             modes = STRIP_CUSTOM_EFFECT_MODES.copy()
 
         return modes
+
+    def _device_mode_lower(self, mode):
+        hexagon_lower_modes = [13, 14, 15, 22, 23, 24]
+        strip_lower_modes = [10]
+
+        if self._device == "hexagon":
+            lower_modes = hexagon_lower_modes
+        if self._device == "strip":
+            lower_modes = strip_lower_modes
+
+        return mode in lower_modes
 
     @property
     def default_effects(self) -> dict:

@@ -117,7 +117,7 @@ class TestEffects:
             mode_hex = effects._mode_hex(mode)
             assert mode_hex == expected_responses[index]
 
-    def test_colour_hex_returns_hex_value(self):
+    def test_colour_hex_returns_hex_value_for_hexagon(self):
         effects = Effects(device="hexagon")
 
         expected_responses = ["80", "06", "a6", "b4", "bf", "c1", "c3"]
@@ -129,6 +129,23 @@ class TestEffects:
             ["Mood", "Orange", 1],
             ["Selected", "Savasana", 1],
             ["Selected", "Sunrise", 1],
+            ["Selected", "Unicorns", 1],
+        ]
+
+        for index, colour in enumerate(test_colours):
+            colour_hex = effects._colour_hex(colour[0], colour[1], colour[2])
+            assert colour_hex == expected_responses[index]
+
+    def test_colour_hex_returns_hex_value_for_strip(self):
+        effects = Effects(device="strip")
+
+        expected_responses = ["80", "a6", "34", "c1", "c3"]
+
+        test_colours = [
+            ["Breath", "Red, Green, Blue", 1],
+            ["Flicker", "Azure", 1],
+            ["Mood", "Orange", 10],
+            ["Selected", "Sunrise", 13],
             ["Selected", "Unicorns", 1],
         ]
 
