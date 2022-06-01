@@ -12,7 +12,11 @@ Supports the following cololight devices:
 ```python
 from pycololight import PyCololight
 
+# Setup hexagon device
 light = PyCololight(device="hexagon", host="1.1.1.1")
+
+# Setup strip device, and include dynamic effects
+light = PyCololight(device="strip", host="1.1.1.1", dynamic_effects=True)
 
 # Turn on at 60% brightness
 light.on = 60
