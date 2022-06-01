@@ -2,26 +2,31 @@ import pytest
 
 from pycololight import (  # pylint: disable=import-error
     PyCololight,
-    ColourException,
-    ColourSchemeException,
-    ModeExecption,
-    CycleSpeedException,
     BrightnessException,
+    UnsupportedDeviceException,
 )
+
+from pycololight.constants import STRIP_DYANMIC_EFFECTS
 
 from unittest.mock import patch
 
 
 class TestPyCololight:
+    def test_raises_exception_when_device_not_supported(self):
+        with pytest.raises(UnsupportedDeviceException):
+            PyCololight(device="fake", host="1.1.1.1")
+
     @patch("pycololight.PyCololight._send")
     def test_turn_on(self, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.on == False
 
         light.on = 60
 
         mock_send.assert_called_with(
-            b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
+            [
+                b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
+            ]
         )
 
         assert light.on == True
@@ -29,50 +34,56 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_setting_brightness(self, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         light.brightness = 60
 
         mock_send.assert_called_with(
-            b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
+            [
+                b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
+            ]
         )
 
         assert light.brightness == 60
 
     @patch("pycololight.PyCololight._send")
     def test_setting_brightness_raises_exception_when_outside_bound(self, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         with pytest.raises(BrightnessException):
             light.brightness = 130
 
     @patch("pycololight.PyCololight._send")
     def test_setting_colour(self, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.colour == None
 
         light.colour = (255, 127, 255)
 
         mock_send.assert_called_with(
-            b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x00\xff\x7f\xff"
+            [
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x00\xff\x7f\xff"
+            ]
         )
 
         assert light.colour == (255, 127, 255)
 
     @patch("pycololight.PyCololight._send")
     def test_setting_effect(self, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.effect == None
 
         light.effect = "Sunrise"
 
         mock_send.assert_called_with(
-            b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x01\xc1\n\x00"
+            [
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x01\xc1\n\x00"
+            ]
         )
         assert light.effect == "Sunrise"
 
     def test_effects_returns_list_of_effects(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         default_effects = [
             "80s Club",
             "Cherry Blossom",
@@ -92,61 +103,20 @@ class TestPyCololight:
 
     @patch("pycololight.PyCololight._send")
     def test_turn_off(self, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         light._on = True
 
         light.on = 0
         mock_send.assert_called_with(
-            b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xce\x1e"
+            [
+                b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xce\x1e"
+            ]
         )
 
         assert light.on == False
 
-    def test_cycle_speed_hex_returns_hex_value(self):
-        light = PyCololight("1.1.1.1")
-
-        expected_responses = ["01", "20", "0d", "0b"]
-
-        test_cycle_speeds = [(32, 1), (1, 1), (20, 1), (2, 2)]
-
-        for index, test_speed in enumerate(test_cycle_speeds):
-            cycle_speed = test_speed[0]
-            mode = test_speed[1]
-            cycle_speed_hex = light._cycle_speed_hex(cycle_speed, mode)
-            assert cycle_speed_hex == expected_responses[index]
-
-    def test_colour_hex_returns_hex_value(self):
-        light = PyCololight("1.1.1.1")
-
-        expected_responses = ["80", "06", "a6", "b4", "bf", "c1", "c3"]
-
-        test_colours = [
-            ["Breath", "Red, Green, Blue", 1],
-            ["Breath", "Red", 13],
-            ["Flicker", "Azure", 1],
-            ["Mood", "Orange", 1],
-            ["Selected", "Savasana", 1],
-            ["Selected", "Sunrise", 1],
-            ["Selected", "Unicorns", 1],
-        ]
-
-        for index, colour in enumerate(test_colours):
-            colour_hex = light._colour_hex(colour[0], colour[1], colour[2])
-            assert colour_hex == expected_responses[index]
-
-    def test_mode_hex_returns_tuple_of_hex_values(self):
-        light = PyCololight("1.1.1.1")
-
-        expected_responses = [("05", "10"), ("05", "80"), ("06", "10"), ("06", "70")]
-
-        test_modes = [3, 8, 17, 26]
-
-        for index, mode in enumerate(test_modes):
-            mode_hex = light._mode_hex(mode)
-            assert mode_hex == expected_responses[index]
-
     def test_add_custom_effect_adds_effect(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         effect_name = "test_effect"
         effect_colour_schema = "Mood"
@@ -163,10 +133,10 @@ class TestPyCololight:
         )
 
         assert effect_name in light.effects
-        assert light._effects[effect_name] == "01b41600"
+        assert light._effects[effect_name] == ["01b41600"]
 
     def test_add_custom_effect_adds_effect_when_mode_is_2(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         effect_name = "test_effect"
         effect_colour_schema = "Mood"
@@ -183,10 +153,10 @@ class TestPyCololight:
         )
 
         assert effect_name in light.effects
-        assert light._effects[effect_name] == "0213b400"
+        assert light._effects[effect_name] == ["0213b400"]
 
     def test_custom_effect_colour_schemes_returns_supported_colour_schemes(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         supported_colour_schemes = [
             "Breath",
@@ -201,7 +171,7 @@ class TestPyCololight:
         assert light.custom_effect_colour_schemes() == supported_colour_schemes
 
     def test_custom_effect_colour_scheme_colours_returns_colour_scheme_colours(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         expected_colours = [
             "Red, Green, Blue",
@@ -218,37 +188,13 @@ class TestPyCololight:
 
         assert light.custom_effect_colour_scheme_colours("Flicker") == expected_colours
 
-    def test_colour_hex_raises_exception_when_bad_scheme(self):
-        light = PyCololight("1.1.1.1")
-
-        with pytest.raises(ColourSchemeException):
-            light._colour_hex("bad_scheme", "colour", 1)
-
-    def test_colour_hex_raises_exception_when_bad_colour(self):
-        light = PyCololight("1.1.1.1")
-
-        with pytest.raises(ColourException):
-            light._colour_hex("Mood", "bad_colour", 1)
-
-    def test_cycle_speed_hex_raises_exception_when_bad_speed(self):
-        light = PyCololight("1.1.1.1")
-
-        with pytest.raises(CycleSpeedException):
-            light._cycle_speed_hex(35, 1)
-
-    def test_mode_hex_raises_exception_when_bad_mode(self):
-        light = PyCololight("1.1.1.1")
-
-        with pytest.raises(ModeExecption):
-            light._mode_hex(0)
-
     def test_excluding_defualt_effects(self):
-        light = PyCololight("1.1.1.1", default_effects=False)
+        light = PyCololight(device="hexagon", host="1.1.1.1", default_effects=False)
 
         assert light.effects == []
 
     def test_default_effects_returns_list_of_default_effects(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         default_effects = [
             "80s Club",
@@ -267,21 +213,27 @@ class TestPyCololight:
 
         assert light.default_effects == default_effects
 
+    def test_dynamic_effects_returns_list_of_dynamic_effects(self):
+        hexagon_light = PyCololight(device="hexagon", host="1.1.1.1")
+        strip_light = PyCololight(device="strip", host="1.1.1.1")
+
+        hexagon_dynamic_effects = []
+        strip_dynamic_effects = list(STRIP_DYANMIC_EFFECTS.keys())
+
+        assert hexagon_light.dynamic_effects == hexagon_dynamic_effects
+        assert strip_light.dynamic_effects == strip_dynamic_effects
+
     def test_restore_default_effects_adds_given_default_effects(self):
-        light = PyCololight("1.1.1.1", default_effects=False)
+        light = PyCololight(device="strip", host="1.1.1.1", default_effects=False)
 
-        effects = [
-            "Pensieve",
-            "Savasana",
-            "Sunrise",
-        ]
+        effects = ["Pensieve", "Savasana", "Sunrise", "Tron"]
 
-        light.restore_default_effects(effects)
+        light.restore_effects(effects)
 
         assert light.effects == effects
 
     def test_counter_returns_boolen_counter(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         assert light._counter == 1
 
@@ -292,7 +244,7 @@ class TestPyCololight:
         assert light._counter == 1
 
     def test_get_config_returns_config_for_command(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         first_command_call = light._get_config("command")
         second_command_call = light._get_config("command")
@@ -307,7 +259,7 @@ class TestPyCololight:
         )
 
     def test_get_config_returns_config_for_effect(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         first_effect_call = light._get_config("effect")
         second_effect_call = light._get_config("effect")
@@ -322,7 +274,7 @@ class TestPyCololight:
         )
 
     def test_get_config_returns_config_for_state(self):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
 
         first_effect_call = light._get_config("state")
         second_effect_call = light._get_config("state")
@@ -339,7 +291,7 @@ class TestPyCololight:
     @patch("pycololight.PyCololight._send")
     @patch("pycololight.PyCololight._receive")
     def test_state_updates_state_and_brightness(self, mock_receive, mock_send):
-        light = PyCololight("1.1.1.1")
+        light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.on == False
 
         mock_receive.return_value = b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
@@ -347,9 +299,33 @@ class TestPyCololight:
         light.state
 
         mock_send.assert_called_with(
-            b"SZ00\x00\x00\x00\x00\x00\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x02\x01\x01",
+            [
+                b"SZ00\x00\x00\x00\x00\x00\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x02\x01\x01"
+            ],
             response=True,
         )
 
         assert light.on == True
         assert light.brightness == 60
+
+    @patch("pycololight.PyCololight._send")
+    def test_setting_dynamic_effect(self, mock_send):
+        light = PyCololight(device="strip", host="1.1.1.1", dynamic_effects=True)
+
+        assert light.effect == None
+
+        light.effect = "Graffiti"
+
+        mock_send.assert_called_with(
+            [
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\xfe\xfe\xfe",
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\x05\x08\x8c",
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\xf0\xa0\x03",
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\xfa\x00\xff",
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\xff\xaf\x00",
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\x00\xc3\xff",
+                b"SZ00\x00\x00\x00\x00\x00#\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x06\x02\xff\x93\xff\x00\x91",
+            ]
+        )
+
+        assert light.effect == "Graffiti"

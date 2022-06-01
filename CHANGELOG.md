@@ -1,3 +1,17 @@
+# 2.0.0
+
+This release enables support for the cololight strip device.
+
+## New Features
+
+- Add support for the cololight strip device
+- Add dynamic effects for the cololight strip device
+- Add custom effects for the cololight strip device
+
+## Breaking Changes
+
+- A device (`hexagon` or `strip`) must now be passed when creating `PyCololight` object
+
 # 1.0.0
 
 ## New Features
