@@ -29,12 +29,19 @@ class PyCololight:
     """
 
     def __init__(
-        self, device, host, port=8900, default_effects=True, dynamic_effects=False
+        self,
+        device,
+        host,
+        port=8900,
+        timeout=4,
+        default_effects=True,
+        dynamic_effects=False,
     ):
         self.supported_devices = ["hexagon", "strip"]
         self.device = self._check_supported_devices(device)
         self.host = host
         self.port = port
+        self.timeout = timeout
         self._counter = 1
         self._on = False
         self._brightness = None
@@ -70,7 +77,7 @@ class PyCololight:
 
     def _socket_connect(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.settimeout(4)
+        self._sock.settimeout(self.timeout)
 
     def _socket_close(self):
         self._sock.close()

@@ -1,3 +1,9 @@
+# 2.1.0
+
+## New Features
+
+- Add ability to set timeout for device
+
 # 2.0.0
 
 This release enables support for the cololight strip device.
