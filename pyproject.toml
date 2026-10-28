@@ -1,22 +1,30 @@
-[tool.poetry]
-authors = ["BazaJayGee66"]
-description = "A Python3 wrapper for interacting with LifeSmart Cololight"
-include = ["CHANGELOG.md"]
-license = "MIT"
+[project]
 name = "pycololight"
-readme = "README.md"
-repository = "https://github.com/BazaJayGee66/pycololight"
 version = "2.1.0"
+description = "A Python3 wrapper for interacting with LifeSmart Cololight"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "BazaJayGee66" }]
+requires-python = ">=3.12"
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.8"
+[project.urls]
+Repository = "https://github.com/BazaJayGee66/pycololight"
 
-[tool.poetry.dev-dependencies]
-black = "21.5b1"
-pylint = "2.8.2"
-pytest = "6.2.4"
-pytest-cov = "^2.12.1"
+[dependency-groups]
+dev = [
+    "pytest>=9,<10",
+    "pytest-cov>=7,<8",
+]
 
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+source-include = ["CHANGELOG.md"]
+
+[tool.pytest]
+testpaths = ["tests"]

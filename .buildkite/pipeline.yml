@@ -5,12 +5,20 @@
 
   - wait
 
-  - label: ":python: Run Tests"
-    command: pytest --cov=pycololight
+  - label: ":python: Run Tests on Python {{matrix}}"
+    command:
+      - uv sync --locked
+      - uv run pytest --cov=pycololight
+    matrix:
+      - "3.12"
+      - "3.13"
+      - "3.14"
     plugins:
       - docker#v3.5.0:
           image: "pycololight-devimage"
           workdir: /workspaces/pycololight
+          environment:
+            - "UV_PYTHON={{matrix}}"
 
   - block: ":rotating_light::rocket: Release"
     branches: 'main'
@@ -31,7 +39,7 @@
     branches: 'main'
     commands:
       - buildkite-agent artifact download dist/* .
-      - poetry publish --username __token__ --password $PYPI_TOKEN
+      - uv publish --token $PYPI_TOKEN
     plugins:
       - docker#v3.5.0:
           image: "pycololight-devimage"
