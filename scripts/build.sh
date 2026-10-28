@@ -15,4 +15,4 @@ buildkite-agent meta-data set "release-notes" "${RELEASE_NOTES}"
 
 echo "+++ :parcel: Building version ${RELEASE_VERSION}"
 
-poetry build
+uv build
