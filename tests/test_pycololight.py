@@ -3,7 +3,7 @@ import threading
 
 import pytest
 
-from pycololight import (  # pylint: disable=import-error
+from pycololight import (
     PyCololight,
     BrightnessException,
     UnavailableException,

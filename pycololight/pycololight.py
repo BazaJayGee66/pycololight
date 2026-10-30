@@ -83,7 +83,7 @@ class PyCololight:
             if response:
                 try:
                     return sock.recvfrom(4096)[0]
-                except socket.timeout:
+                except TimeoutError:
                     raise UnavailableException
 
     def _get_config(self, config_type):
@@ -232,7 +232,7 @@ class PyCololight:
         Restors the given default/dynamic effects, to the saved effects of the device.
         """
         for effect in effects:
-            if effect not in self._device_effects.effects.keys():
+            if effect not in self._device_effects.effects:
                 raise DefaultEffectExecption
 
             self._effects[effect] = self._device_effects.effects[effect]

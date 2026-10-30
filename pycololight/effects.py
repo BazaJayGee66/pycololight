@@ -44,7 +44,7 @@ class Effects:
         else:
             cycle_speed_value = list(reversed(range(33)))[cycle_speed - 1]
 
-        cycle_speed_hex = "{:02x}".format(cycle_speed_value)
+        cycle_speed_hex = f"{cycle_speed_value:02x}"
         return cycle_speed_hex
 
     def _colour_hex(self, colour_scheme, colour, mode):
@@ -59,7 +59,7 @@ class Effects:
             # These modes have a lower starting decimal of 128
             starting_decimal = starting_decimal - 128
         colour_decimal = starting_decimal + colour_key
-        colour_hex = "{:02x}".format(colour_decimal)
+        colour_hex = f"{colour_decimal:02x}"
         return colour_hex
 
     def _mode_hex(self, mode):

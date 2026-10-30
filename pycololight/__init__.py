@@ -13,3 +13,16 @@ from .effects import (
     ColourException,
     ModeExecption,
 )
+
+__all__ = [
+    "BrightnessException",
+    "ColourException",
+    "ColourSchemeException",
+    "CycleSpeedException",
+    "DefaultEffectExecption",
+    "Effects",
+    "ModeExecption",
+    "PyCololight",
+    "UnavailableException",
+    "UnsupportedDeviceException",
+]

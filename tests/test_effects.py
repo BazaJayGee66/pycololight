@@ -6,11 +6,11 @@ from pycololight import (
     ColourException,
     CycleSpeedException,
     ModeExecption,
-)  # pylint: disable=import-error
+)
 
 from pycololight.constants import (
     STRIP_DYANMIC_EFFECTS,
-)  # pylint: disable=import-error
+)
 
 
 class TestEffects:
