@@ -49,7 +49,6 @@ class PyCololight:
         self._effect = None
         self._device_effects = Effects(device)
         self._effects = self._initial_effects(default_effects, dynamic_effects)
-        self._sock = None
 
     def _check_supported_devices(self, device):
         if device not in self.supported_devices:
@@ -75,29 +74,17 @@ class PyCololight:
         self._toggle_counter()
         return count
 
-    def _socket_connect(self):
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.settimeout(self.timeout)
-
-    def _socket_close(self):
-        self._sock.close()
-
     def _send(self, commands, response=False):
-        self._socket_connect()
-        for command in commands:
-            self._sock.sendto(command, (self.host, self.port))
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.settimeout(self.timeout)
+            for command in commands:
+                sock.sendto(command, (self.host, self.port))
 
-        if not response:
-            self._socket_close()
-
-    def _receive(self):
-        try:
-            data = self._sock.recvfrom(4096)[0]
-            self._socket_close()
-            return data
-        except socket.timeout:
-            self._socket_close()
-            raise UnavailableException
+            if response:
+                try:
+                    return sock.recvfrom(4096)[0]
+                except socket.timeout:
+                    raise UnavailableException
 
     def _get_config(self, config_type):
         if config_type == "command":
@@ -114,11 +101,10 @@ class PyCololight:
         """
         Gets state (on/off) and brightness from device, and updates local state.
         """
-        self._send(
+        data = self._send(
             [bytes.fromhex(f"{self._get_config('state')}")],
             response=True,
         )
-        data = self._receive()
         if data[40] == 207:
             self._on = True
             self._brightness = data[41]

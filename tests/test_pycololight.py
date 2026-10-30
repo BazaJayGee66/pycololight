@@ -1,14 +1,71 @@
+import socket
+import threading
+
 import pytest
 
 from pycololight import (  # pylint: disable=import-error
     PyCololight,
     BrightnessException,
+    UnavailableException,
     UnsupportedDeviceException,
 )
 
 from pycololight.constants import STRIP_DYANMIC_EFFECTS
 
 from unittest.mock import patch
+
+ON_AT_60_REPLY = bytes(40) + bytes([0xCF, 60])
+
+
+class FakeLight:
+    """
+    Takes each request as soon as it's sent, so a test can act at a known point while
+    the client waits for a reply.
+    """
+
+    def __init__(self):
+        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._sock.bind(("127.0.0.1", 0))
+        self._sock.settimeout(1)
+        self.port = self._sock.getsockname()[1]
+        self.requests = []
+        self._on_next_request = None
+
+    def on_next_request(self, reply, then):
+        self._on_next_request = (reply, then)
+
+    def take_request(self):
+        data, address = self._sock.recvfrom(4096)
+        self.requests.append(data)
+        if self._on_next_request:
+            reply, then = self._on_next_request
+            self._on_next_request = None
+            self._sock.sendto(reply, address)
+            then()
+
+    def close(self):
+        self._sock.close()
+
+
+@pytest.fixture
+def fake_light():
+    light = FakeLight()
+
+    class ClientSocket(socket.socket):
+        def sendto(self, data, address):
+            sent = super().sendto(data, address)
+            light.take_request()
+            return sent
+
+    with patch("socket.socket", ClientSocket):
+        yield light
+    light.close()
+
+
+def in_another_thread(action):
+    thread = threading.Thread(target=action)
+    thread.start()
+    thread.join()
 
 
 class TestPyCololight:
@@ -289,12 +346,11 @@ class TestPyCololight:
         )
 
     @patch("pycololight.PyCololight._send")
-    @patch("pycololight.PyCololight._receive")
-    def test_state_updates_state_and_brightness(self, mock_receive, mock_send):
+    def test_state_updates_state_and_brightness(self, mock_send):
         light = PyCololight(device="hexagon", host="1.1.1.1")
         assert light.on == False
 
-        mock_receive.return_value = b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
+        mock_send.return_value = b"SZ00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x01\x03\x01\xcf<"
 
         light.state
 
@@ -329,3 +385,30 @@ class TestPyCololight:
         )
 
         assert light.effect == "Graffiti"
+
+    def test_state_read_is_not_disturbed_by_a_command_from_another_thread(
+        self, fake_light
+    ):
+        light = PyCololight(device="hexagon", host="127.0.0.1", port=fake_light.port)
+
+        def set_brightness_to_20():
+            light.brightness = 20
+
+        fake_light.on_next_request(
+            reply=ON_AT_60_REPLY,
+            then=lambda: in_another_thread(set_brightness_to_20),
+        )
+
+        light.state
+
+        assert fake_light.requests[-1].endswith(bytes([0xCF, 20]))
+        assert light.on is True
+        assert light.brightness == 60
+
+    def test_state_read_with_no_reply_raises_unavailable(self, fake_light):
+        light = PyCololight(
+            device="hexagon", host="127.0.0.1", port=fake_light.port, timeout=0.1
+        )
+
+        with pytest.raises(UnavailableException):
+            light.state
