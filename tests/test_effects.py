@@ -1,16 +1,15 @@
 import pytest
 
 from pycololight import (
-    Effects,
-    ColourSchemeException,
     ColourException,
+    ColourSchemeException,
     CycleSpeedException,
+    Effects,
     ModeExecption,
-)  # pylint: disable=import-error
-
+)
 from pycololight.constants import (
     STRIP_DYANMIC_EFFECTS,
-)  # pylint: disable=import-error
+)
 
 
 class TestEffects:

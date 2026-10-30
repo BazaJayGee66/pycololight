@@ -20,6 +20,15 @@
           environment:
             - "UV_PYTHON={{matrix}}"
 
+  - label: ":python: Lint"
+    command:
+      - uv run --locked --only-group dev ruff check
+      - uv run --locked --only-group dev ruff format --check
+    plugins:
+      - docker#v3.5.0:
+          image: "pycololight-devimage"
+          workdir: /workspaces/pycololight
+
   - block: ":rotating_light::rocket: Release"
     branches: 'main'
 

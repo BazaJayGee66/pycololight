@@ -16,6 +16,7 @@ Repository = "https://github.com/BazaJayGee66/pycololight"
 dev = [
     "pytest>=9,<10",
     "pytest-cov>=7,<8",
+    "ruff==0.17.3",
 ]
 
 [build-system]
@@ -28,3 +29,10 @@ source-include = ["CHANGELOG.md"]
 
 [tool.pytest]
 testpaths = ["tests"]
+
+[tool.ruff.lint]
+extend-select = ["I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Reading PyCololight.state polls the device, so tests read it as a bare expression.
+"tests/*" = ["B018"]
