@@ -1,17 +1,16 @@
+from .effects import (
+    ColourException,
+    ColourSchemeException,
+    CycleSpeedException,
+    Effects,
+    ModeExecption,
+)
 from .pycololight import (
-    PyCololight,
-    DefaultEffectExecption,
     BrightnessException,
+    DefaultEffectExecption,
+    PyCololight,
     UnavailableException,
     UnsupportedDeviceException,
-)
-
-from .effects import (
-    Effects,
-    CycleSpeedException,
-    ColourSchemeException,
-    ColourException,
-    ModeExecption,
 )
 
 __all__ = [

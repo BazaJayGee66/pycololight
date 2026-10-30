@@ -32,11 +32,11 @@ light.effect = "Sunrise"
 
 # Create custom effect
 light.add_custom_effect(
-  name="custom effect",
-  colour_scheme="Shadow",
-  colour="Red, Yellow",
-  cycle_speed=11,
-  mode=1
+    name="custom effect",
+    colour_scheme="Shadow",
+    colour="Red, Yellow",
+    cycle_speed=11,
+    mode=1,
 )
 
 # Turn off

@@ -1,13 +1,12 @@
 import pytest
 
 from pycololight import (
-    Effects,
-    ColourSchemeException,
     ColourException,
+    ColourSchemeException,
     CycleSpeedException,
+    Effects,
     ModeExecption,
 )
-
 from pycololight.constants import (
     STRIP_DYANMIC_EFFECTS,
 )

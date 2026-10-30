@@ -1,18 +1,16 @@
 import socket
 import threading
+from unittest.mock import patch
 
 import pytest
 
 from pycololight import (
-    PyCololight,
     BrightnessException,
+    PyCololight,
     UnavailableException,
     UnsupportedDeviceException,
 )
-
 from pycololight.constants import STRIP_DYANMIC_EFFECTS
-
-from unittest.mock import patch
 
 ON_AT_60_REPLY = bytes(40) + bytes([0xCF, 60])
 ON_AT_80_REPLY = bytes(40) + bytes([0xCF, 80])
