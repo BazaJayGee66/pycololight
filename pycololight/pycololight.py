@@ -110,6 +110,7 @@ class PyCololight:
             self._brightness = data[41]
         elif data[40] == 206:
             self._on = False
+            self._brightness = None
         else:
             return
 
@@ -130,6 +131,7 @@ class PyCololight:
             self.brightness = brightness
         else:
             self._on = False
+            self._brightness = None
             command = bytes.fromhex("{}{}".format(self._get_config("command"), "e1e"))
             self._send([command])
 

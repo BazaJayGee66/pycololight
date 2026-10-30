@@ -15,6 +15,9 @@ from pycololight.constants import STRIP_DYANMIC_EFFECTS
 from unittest.mock import patch
 
 ON_AT_60_REPLY = bytes(40) + bytes([0xCF, 60])
+ON_AT_80_REPLY = bytes(40) + bytes([0xCF, 80])
+# An off light reports the brightness its last off command carried, 30 for `ce1e`.
+OFF_REPLY = bytes(40) + bytes([0xCE, 0x1E])
 
 
 class FakeLight:
@@ -31,7 +34,7 @@ class FakeLight:
         self.requests = []
         self._on_next_request = None
 
-    def on_next_request(self, reply, then):
+    def on_next_request(self, reply, then=lambda: None):
         self._on_next_request = (reply, then)
 
     def take_request(self):
@@ -412,3 +415,33 @@ class TestPyCololight:
 
         with pytest.raises(UnavailableException):
             light.state
+
+    def test_state_reads_report_no_brightness_while_the_light_is_off(self, fake_light):
+        light = PyCololight(device="hexagon", host="127.0.0.1", port=fake_light.port)
+
+        fake_light.on_next_request(reply=ON_AT_60_REPLY)
+        light.state
+        assert light.on is True
+        assert light.brightness == 60
+
+        fake_light.on_next_request(reply=OFF_REPLY)
+        light.state
+        assert light.on is False
+        assert light.brightness is None
+
+        fake_light.on_next_request(reply=ON_AT_80_REPLY)
+        light.state
+        assert light.on is True
+        assert light.brightness == 80
+
+    def test_turning_off_reports_no_brightness(self, fake_light):
+        light = PyCololight(device="hexagon", host="127.0.0.1", port=fake_light.port)
+        light.on = 60
+
+        light.on = 0
+        assert light.brightness is None
+
+        fake_light.on_next_request(reply=OFF_REPLY)
+        light.state
+        assert light.on is False
+        assert light.brightness is None
