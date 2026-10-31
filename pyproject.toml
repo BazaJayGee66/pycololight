@@ -14,6 +14,7 @@ Repository = "https://github.com/BazaJayGee66/pycololight"
 
 [dependency-groups]
 dev = [
+    "mypy==2.4.1",
     "pytest>=9,<10",
     "pytest-cov>=7,<8",
     "ruff==0.17.3",
@@ -36,3 +37,7 @@ extend-select = ["I", "UP"]
 [tool.ruff.lint.per-file-ignores]
 # Reading PyCololight.state polls the device, so tests read it as a bare expression.
 "tests/*" = ["B018"]
+
+[tool.mypy]
+files = ["pycololight"]
+disallow_untyped_defs = true

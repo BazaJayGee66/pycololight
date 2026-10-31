@@ -30,13 +30,13 @@ class PyCololight:
 
     def __init__(
         self,
-        device,
-        host,
-        port=8900,
-        timeout=4,
-        default_effects=True,
-        dynamic_effects=False,
-    ):
+        device: str,
+        host: str | None,
+        port: int = 8900,
+        timeout: float = 4,
+        default_effects: bool = True,
+        dynamic_effects: bool = False,
+    ) -> None:
         self.supported_devices = ["hexagon", "strip"]
         self.device = self._check_supported_devices(device)
         self.host = host
@@ -44,19 +44,21 @@ class PyCololight:
         self.timeout = timeout
         self._counter = 1
         self._on = False
-        self._brightness = None
-        self._colour = None
-        self._effect = None
+        self._brightness: int | None = None
+        self._colour: tuple[int, int, int] | None = None
+        self._effect: str | None = None
         self._device_effects = Effects(device)
         self._effects = self._initial_effects(default_effects, dynamic_effects)
 
-    def _check_supported_devices(self, device):
+    def _check_supported_devices(self, device: str) -> str:
         if device not in self.supported_devices:
             raise UnsupportedDeviceException
         else:
             return device
 
-    def _initial_effects(self, default_effects, dynamic_effects):
+    def _initial_effects(
+        self, default_effects: bool, dynamic_effects: bool
+    ) -> dict[str, list[str]]:
         initial_effects = {}
 
         if default_effects:
@@ -66,15 +68,15 @@ class PyCololight:
 
         return initial_effects
 
-    def _toggle_counter(self):
+    def _toggle_counter(self) -> None:
         self._counter = 2 if self._counter == 1 else 1
 
-    def _get_counter(self):
+    def _get_counter(self) -> str:
         count = f"000000000000000000000000000000000{self._counter}0000000000000000000"
         self._toggle_counter()
         return count
 
-    def _send(self, commands, response=False):
+    def _send(self, commands: list[bytes], response: bool = False) -> bytes | None:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.settimeout(self.timeout)
             for command in commands:
@@ -86,7 +88,9 @@ class PyCololight:
                 except TimeoutError:
                     raise UnavailableException
 
-    def _get_config(self, config_type):
+        return None
+
+    def _get_config(self, config_type: str) -> str:
         if config_type == "command":
             config = f"{COMMAND_PREFIX}20{self._get_counter()}4010301c"
         elif config_type == "effect":
@@ -97,7 +101,7 @@ class PyCololight:
         return config
 
     @property
-    def state(self):
+    def state(self) -> None:
         """
         Gets state (on/off) and brightness from device, and updates local state.
         """
@@ -105,6 +109,7 @@ class PyCololight:
             [bytes.fromhex(f"{self._get_config('state')}")],
             response=True,
         )
+        assert data is not None
         if data[40] == 207:
             self._on = True
             self._brightness = data[41]
@@ -122,7 +127,7 @@ class PyCololight:
         return self._on
 
     @on.setter
-    def on(self, brightness: int):
+    def on(self, brightness: int) -> None:
         """
         Turns the device on with desired brightness, or turns the device off if brightness is 0.
         """
@@ -136,14 +141,14 @@ class PyCololight:
             self._send([command])
 
     @property
-    def brightness(self) -> int:
+    def brightness(self) -> int | None:
         """
         Returns the current set brightness.
         """
         return self._brightness
 
     @brightness.setter
-    def brightness(self, brightness: int):
+    def brightness(self, brightness: int) -> None:
         """
         Sets the brightness of the device.
         """
@@ -161,14 +166,14 @@ class PyCololight:
         self._send([command])
 
     @property
-    def colour(self) -> tuple:
+    def colour(self) -> tuple[int, int, int] | None:
         """
         Returns the current set colour hue.
         """
         return self._colour
 
     @colour.setter
-    def colour(self, colour: tuple):
+    def colour(self, colour: tuple[int, int, int]) -> None:
         """
         Sets the colour of the device.
         """
@@ -182,14 +187,14 @@ class PyCololight:
         self._send([command])
 
     @property
-    def effect(self) -> str:
+    def effect(self) -> str | None:
         """
         Returns the current set effect name.
         """
         return self._effect
 
     @effect.setter
-    def effect(self, effect: str):
+    def effect(self, effect: str) -> None:
         """
         Set the effect of the device.
         """
@@ -207,27 +212,27 @@ class PyCololight:
         self._send(commands)
 
     @property
-    def default_effects(self) -> list:
+    def default_effects(self) -> list[str]:
         """
         Returns a list of names of the default effects for the device.
         """
         return list(self._device_effects.default_effects.keys())
 
     @property
-    def dynamic_effects(self) -> list:
+    def dynamic_effects(self) -> list[str]:
         """
         Returns a list of names of the dynamic effects for the device.
         """
         return list(self._device_effects.dynamic_effects.keys())
 
     @property
-    def effects(self) -> list:
+    def effects(self) -> list[str]:
         """
         Returns a list of names of the effects saved for the device.
         """
         return list(self._effects.keys())
 
-    def restore_effects(self, effects: list):
+    def restore_effects(self, effects: list[str]) -> None:
         """
         Restors the given default/dynamic effects, to the saved effects of the device.
         """
@@ -239,7 +244,7 @@ class PyCololight:
 
     def add_custom_effect(
         self, name: str, colour_scheme: str, colour: str, cycle_speed: int, mode: int
-    ):
+    ) -> None:
         """
         Adds a custom effect, to the saved effects of the device.
         """
@@ -249,13 +254,13 @@ class PyCololight:
 
         self._effects[name] = [custom_effect_hex]
 
-    def custom_effect_colour_schemes(self) -> list:
+    def custom_effect_colour_schemes(self) -> list[str]:
         """
         Returns a list of the available colour schemes for custom efects.
         """
         return self._device_effects.custom_effect_colour_schemes()
 
-    def custom_effect_colour_scheme_colours(self, colour_scheme) -> list:
+    def custom_effect_colour_scheme_colours(self, colour_scheme: str) -> list[str]:
         """
         Returns a list of the available colours for a given colour schemes for custom efects.
         """
