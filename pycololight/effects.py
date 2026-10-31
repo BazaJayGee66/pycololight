@@ -28,13 +28,13 @@ class Effects:
     Effects for cololight devices
     """
 
-    def __init__(self, device) -> None:
+    def __init__(self, device: str) -> None:
         self._device = device
         self._default_effects = DEFAULT_EFFECTS.copy()
         self._dynamic_effects = self._device_dynamic_effects()
         self._modes = self._device_modes()
 
-    def _cycle_speed_hex(self, cycle_speed, mode):
+    def _cycle_speed_hex(self, cycle_speed: int, mode: int) -> str:
         if not 1 <= cycle_speed <= 32:
             raise CycleSpeedException
         if mode in [2]:
@@ -47,7 +47,7 @@ class Effects:
         cycle_speed_hex = f"{cycle_speed_value:02x}"
         return cycle_speed_hex
 
-    def _colour_hex(self, colour_scheme, colour, mode):
+    def _colour_hex(self, colour_scheme: str, colour: str, mode: int) -> str:
         if colour_scheme not in self.custom_effect_colour_schemes():
             raise ColourSchemeException
         if colour not in self.custom_effect_colour_scheme_colours(colour_scheme):
@@ -62,13 +62,13 @@ class Effects:
         colour_hex = f"{colour_decimal:02x}"
         return colour_hex
 
-    def _mode_hex(self, mode):
+    def _mode_hex(self, mode: int) -> tuple[str, str]:
         if not 1 <= mode <= len(self._modes):
             raise ModeExecption
 
         return self._modes[mode - 1]
 
-    def _device_dynamic_effects(self):
+    def _device_dynamic_effects(self) -> dict[str, list[str]]:
         if self._device == "strip":
             dynamic_effects = STRIP_DYANMIC_EFFECTS.copy()
         else:
@@ -76,7 +76,7 @@ class Effects:
 
         return dynamic_effects
 
-    def _device_modes(self):
+    def _device_modes(self) -> list[tuple[str, str]]:
         if self._device == "hexagon":
             modes = HEXAGON_CUSTOM_EFFECT_MODES.copy()
         if self._device == "strip":
@@ -84,7 +84,7 @@ class Effects:
 
         return modes
 
-    def _device_mode_lower(self, mode):
+    def _device_mode_lower(self, mode: int) -> bool:
         hexagon_lower_modes = [13, 14, 15, 22, 23, 24]
         strip_lower_modes = [10]
 
@@ -96,21 +96,21 @@ class Effects:
         return mode in lower_modes
 
     @property
-    def default_effects(self) -> dict:
+    def default_effects(self) -> dict[str, list[str]]:
         """
         Returns a dict of default effects with names and command hex values for the device.
         """
         return self._default_effects
 
     @property
-    def dynamic_effects(self) -> dict:
+    def dynamic_effects(self) -> dict[str, list[str]]:
         """
         Returns a dict of dynamic effects with names and command hex values for the device.
         """
         return self._dynamic_effects
 
     @property
-    def effects(self) -> dict:
+    def effects(self) -> dict[str, list[str]]:
         """
         Return a dict of all effects with names and command hex values for the device.
         """
@@ -139,13 +139,13 @@ class Effects:
 
         return custom_effect_hex
 
-    def custom_effect_colour_schemes(self) -> list:
+    def custom_effect_colour_schemes(self) -> list[str]:
         """
         Returns a list of the available colour schemes for custom efects.
         """
         return list(CUSTOM_EFFECT_COLOURS.keys())
 
-    def custom_effect_colour_scheme_colours(self, colour_scheme) -> list:
+    def custom_effect_colour_scheme_colours(self, colour_scheme: str) -> list[str]:
         """
         Returns a list of the available colours for a given colour schemes for custom efects.
         """

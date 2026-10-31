@@ -20,10 +20,11 @@
           environment:
             - "UV_PYTHON={{matrix}}"
 
-  - label: ":python: Lint"
+  - label: ":python: Lint and type check"
     command:
       - uv run --locked --only-group dev ruff check
       - uv run --locked --only-group dev ruff format --check
+      - uv run --locked --only-group dev mypy
     plugins:
       - docker#v3.5.0:
           image: "pycololight-devimage"

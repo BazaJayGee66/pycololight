@@ -1,6 +1,14 @@
+from typing import TypedDict
+
 COMMAND_PREFIX = "535a30300000000000"
 
-CUSTOM_EFFECT_COLOURS = {
+
+class ColourScheme(TypedDict):
+    decimal: int
+    colours: tuple[str, ...]
+
+
+CUSTOM_EFFECT_COLOURS: dict[str, ColourScheme] = {
     "Breath": {
         "decimal": 128,
         "colours": (
