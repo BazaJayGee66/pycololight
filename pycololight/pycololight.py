@@ -31,7 +31,7 @@ class PyCololight:
     def __init__(
         self,
         device: str,
-        host: str | None,
+        host: str,
         port: int = 8900,
         timeout: float = 4,
         default_effects: bool = True,
