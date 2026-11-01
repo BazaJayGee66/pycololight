@@ -1,3 +1,7 @@
+[![CI](https://github.com/BazaJayGee66/pycololight/actions/workflows/ci.yml/badge.svg)](https://github.com/BazaJayGee66/pycololight/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/pycololight)](https://pypi.org/project/pycololight/)
+[![Downloads](https://img.shields.io/pypi/dm/pycololight)](https://pypistats.org/packages/pycololight)
+
 # pycololight
 
 A Python3 wrapper for interacting with LifeSmart Cololight.
