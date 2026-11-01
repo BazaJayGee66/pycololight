@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/BazaJayGee66/pycololight/compare/2.1.0...2.2.0) (2026-11-01)
+
+
+### Features
+
+* add full type hints and ship a py.typed marker ([#9](https://github.com/BazaJayGee66/pycololight/issues/9)) ([03da40a](https://github.com/BazaJayGee66/pycololight/commit/03da40a8eb01bdf6e38eb11621ffcc3ac1850f63))
+
+
+### Bug Fixes
+
+* open a socket per call so polls and commands can't share one ([#6](https://github.com/BazaJayGee66/pycololight/issues/6)) ([16aba29](https://github.com/BazaJayGee66/pycololight/commit/16aba298bc8dc8326df326c7f289c2fb74be0efe))
+* report no brightness while the light is off ([#7](https://github.com/BazaJayGee66/pycololight/issues/7)) ([66e38d1](https://github.com/BazaJayGee66/pycololight/commit/66e38d1413d76ba68a7db2200dfc97add92a190e))
+
 ## 2.1.0
 
 ### New Features
