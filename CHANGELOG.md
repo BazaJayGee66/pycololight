@@ -1,30 +1,32 @@
-# 2.1.0
+# Changelog
 
-## New Features
+## 2.1.0
+
+### New Features
 
 - Add ability to set timeout for device
 
-# 2.0.0
+## 2.0.0
 
 This release enables support for the cololight strip device.
 
-## New Features
+### New Features
 
 - Add support for the cololight strip device
 - Add dynamic effects for the cololight strip device
 - Add custom effects for the cololight strip device
 
-## Breaking Changes
+### Breaking Changes
 
 - A device (`hexagon` or `strip`) must now be passed when creating `PyCololight` object
 
-# 1.0.0
+## 1.0.0
 
-## New Features
+### New Features
 
 - Add state to get light state (on/off) and brightness - Thanks [@pim12345](https://github.com/pim12345)
 
-## Fixes
+### Fixes
 
 - Add missing exceptions
 - Add BrightnessException if brightness not between 0 and 100
@@ -33,19 +35,19 @@ This release enables support for the cololight strip device.
 - Remove `count` property
 - Add type hints, and docstring
 
-# 0.0.2
+## 0.0.2
 
-## New Features
+### New Features
 
-## Fixes
+### Fixes
 
 - Refactor for simpler code
 
-# 0.0.1
+## 0.0.1
 
 Initial Release
 
-## New Features
+### New Features
 
 - Turn On
 - Turn Off
@@ -55,4 +57,4 @@ Initial Release
 - Include/Exclude default effects
 - Add custom effect
 
-## Fixes
+### Fixes
