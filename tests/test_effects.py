@@ -1,12 +1,6 @@
 import pytest
 
-from pycololight import (
-    ColourException,
-    ColourSchemeException,
-    CycleSpeedException,
-    Effects,
-    ModeExecption,
-)
+from pycololight import CololightValidationError, Effects
 from pycololight.constants import (
     STRIP_DYANMIC_EFFECTS,
 )
@@ -71,26 +65,34 @@ class TestEffects:
     def test_colour_hex_raises_exception_when_bad_scheme(self):
         effects = Effects(device="hexagon")
 
-        with pytest.raises(ColourSchemeException):
+        with pytest.raises(CololightValidationError) as raised:
             effects._colour_hex("bad_scheme", "colour", 1)
+
+        assert raised.value.field == "colour_scheme"
 
     def test_colour_hex_raises_exception_when_bad_colour(self):
         effects = Effects(device="hexagon")
 
-        with pytest.raises(ColourException):
+        with pytest.raises(CololightValidationError) as raised:
             effects._colour_hex("Mood", "bad_colour", 1)
+
+        assert raised.value.field == "colour"
 
     def test_cycle_speed_hex_raises_exception_when_bad_speed(self):
         effects = Effects(device="hexagon")
 
-        with pytest.raises(CycleSpeedException):
+        with pytest.raises(CololightValidationError) as raised:
             effects._cycle_speed_hex(35, 1)
+
+        assert raised.value.field == "cycle_speed"
 
     def test_mode_hex_raises_exception_when_bad_mode(self):
         effects = Effects(device="hexagon")
 
-        with pytest.raises(ModeExecption):
+        with pytest.raises(CololightValidationError) as raised:
             effects._mode_hex(0)
+
+        assert raised.value.field == "mode"
 
     def test_cycle_speed_hex_returns_hex_value(self):
         effects = Effects(device="hexagon")

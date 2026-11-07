@@ -1,27 +1,17 @@
-from .effects import (
-    ColourException,
-    ColourSchemeException,
-    CycleSpeedException,
-    Effects,
-    ModeExecption,
-)
-from .pycololight import (
-    BrightnessException,
-    DefaultEffectExecption,
-    PyCololight,
-    UnavailableException,
-    UnsupportedDeviceException,
+from .client import Cololight, CololightState, DeviceType
+from .effects import Effects
+from .exceptions import (
+    CololightConnectionError,
+    CololightError,
+    CololightValidationError,
 )
 
 __all__ = [
-    "BrightnessException",
-    "ColourException",
-    "ColourSchemeException",
-    "CycleSpeedException",
-    "DefaultEffectExecption",
+    "Cololight",
+    "CololightConnectionError",
+    "CololightError",
+    "CololightState",
+    "CololightValidationError",
+    "DeviceType",
     "Effects",
-    "ModeExecption",
-    "PyCololight",
-    "UnavailableException",
-    "UnsupportedDeviceException",
 ]
