@@ -1,4 +1,5 @@
 from .client import Cololight, CololightState, DeviceType
+from .discovery import detect_device_type
 from .effects import Effects
 from .exceptions import (
     CololightConnectionError,
@@ -14,4 +15,5 @@ __all__ = [
     "CololightValidationError",
     "DeviceType",
     "Effects",
+    "detect_device_type",
 ]
