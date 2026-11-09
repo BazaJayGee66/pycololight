@@ -5,22 +5,7 @@ from .constants import (
     STRIP_CUSTOM_EFFECT_MODES,
     STRIP_DYANMIC_EFFECTS,
 )
-
-
-class CycleSpeedException(Exception):
-    pass
-
-
-class ColourSchemeException(Exception):
-    pass
-
-
-class ColourException(Exception):
-    pass
-
-
-class ModeExecption(Exception):
-    pass
+from .exceptions import CololightValidationError
 
 
 class Effects:
@@ -36,7 +21,9 @@ class Effects:
 
     def _cycle_speed_hex(self, cycle_speed: int, mode: int) -> str:
         if not 1 <= cycle_speed <= 32:
-            raise CycleSpeedException
+            raise CololightValidationError(
+                "cycle_speed", f"Cycle speed must be 1–32, not {cycle_speed}"
+            )
         if mode in [2]:
             # Mode 2 only has speeds 1, 2, 3, which are mapped differently to other modes
             cycle_speed_values = [3, 11, 19]
@@ -49,9 +36,13 @@ class Effects:
 
     def _colour_hex(self, colour_scheme: str, colour: str, mode: int) -> str:
         if colour_scheme not in self.custom_effect_colour_schemes():
-            raise ColourSchemeException
+            raise CololightValidationError(
+                "colour_scheme", f"Unknown colour scheme {colour_scheme!r}"
+            )
         if colour not in self.custom_effect_colour_scheme_colours(colour_scheme):
-            raise ColourException
+            raise CololightValidationError(
+                "colour", f"{colour_scheme} has no colour {colour!r}"
+            )
 
         starting_decimal = CUSTOM_EFFECT_COLOURS[colour_scheme]["decimal"]
         colour_key = CUSTOM_EFFECT_COLOURS[colour_scheme]["colours"].index(colour)
@@ -64,7 +55,9 @@ class Effects:
 
     def _mode_hex(self, mode: int) -> tuple[str, str]:
         if not 1 <= mode <= len(self._modes):
-            raise ModeExecption
+            raise CololightValidationError(
+                "mode", f"Mode must be 1–{len(self._modes)}, not {mode}"
+            )
 
         return self._modes[mode - 1]
 

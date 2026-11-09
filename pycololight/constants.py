@@ -1,7 +1,5 @@
 from typing import TypedDict
 
-COMMAND_PREFIX = "535a30300000000000"
-
 
 class ColourScheme(TypedDict):
     decimal: int
