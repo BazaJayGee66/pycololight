@@ -58,40 +58,6 @@ ON_AT_51_ACK = bytes.fromhex(
     "0d01414142424343444445454646"
 )
 
-Address = tuple[str, int]
-
-
-class FakeLight(asyncio.DatagramProtocol):
-    def __init__(self) -> None:
-        self.replies: list[bytes] = []
-        self._received: asyncio.Queue[tuple[bytes, Address]] = asyncio.Queue()
-
-    def connection_made(self, transport: asyncio.DatagramTransport) -> None:
-        self.transport = transport
-
-    def datagram_received(self, data: bytes, addr: Address) -> None:
-        self._received.put_nowait((data, addr))
-        if self.replies:
-            self.transport.sendto(self.replies.pop(0), addr)
-
-    async def next_request(self) -> tuple[bytes, Address]:
-        async with asyncio.timeout(1):
-            return await self._received.get()
-
-    async def next_packet(self) -> bytes:
-        packet, _ = await self.next_request()
-        return packet
-
-
-@pytest.fixture
-async def fake_light():
-    transport, light = await asyncio.get_running_loop().create_datagram_endpoint(
-        FakeLight, local_addr=("127.0.0.1", 0)
-    )
-    light.port = transport.get_extra_info("sockname")[1]
-    yield light
-    transport.close()
-
 
 @pytest.fixture
 def client(fake_light):
@@ -201,6 +167,9 @@ async def test_get_state_with_no_reply_raises_a_connection_error(fake_light):
 
 
 @pytest.mark.parametrize(
+    "host", ["light.invalid", "light..invalid"], ids=["unknown", "malformed"]
+)
+@pytest.mark.parametrize(
     "operation",
     [
         lambda client: client.turn_on(51),
@@ -208,8 +177,8 @@ async def test_get_state_with_no_reply_raises_a_connection_error(fake_light):
     ],
     ids=["command", "get_state"],
 )
-async def test_a_host_that_does_not_resolve_raises_a_connection_error(operation):
-    client = Cololight("light.invalid", DeviceType.HEXAGON)
+async def test_a_host_that_does_not_resolve_raises_a_connection_error(operation, host):
+    client = Cololight(host, DeviceType.HEXAGON)
 
     with pytest.raises(CololightConnectionError):
         await operation(client)

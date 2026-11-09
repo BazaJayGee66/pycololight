@@ -89,7 +89,7 @@ class Cololight:
         """
         Asks the light whether it's on, at what brightness, and for its MAC address.
         """
-        async with self._endpoint() as endpoint:
+        async with _open_endpoint(self.host, self.port, self.timeout) as endpoint:
             endpoint.send(self._frame(_STATE_QUERY))
             reply = await endpoint.reply
         return _parse_state(reply)
@@ -105,27 +105,30 @@ class Cololight:
         return _PREFIX + bytes([len(payload)]) + payload
 
     async def _send(self, body: bytes) -> None:
-        async with self._endpoint() as endpoint:
+        async with _open_endpoint(self.host, self.port, self.timeout) as endpoint:
             endpoint.send(self._frame(body))
 
-    @asynccontextmanager
-    async def _endpoint(self) -> AsyncIterator["_Endpoint"]:
-        loop = asyncio.get_running_loop()
-        try:
-            async with asyncio.timeout(self.timeout):
-                _, endpoint = await loop.create_datagram_endpoint(
-                    _Endpoint, remote_addr=(self.host, self.port)
-                )
-                try:
-                    yield endpoint
-                finally:
-                    endpoint.close()
-        except TimeoutError as err:
-            raise CololightConnectionError(
-                f"Timed out after {self.timeout} s talking to {self.host}"
-            ) from err
-        except OSError as err:
-            raise CololightConnectionError(f"Can't reach {self.host}: {err}") from err
+
+@asynccontextmanager
+async def _open_endpoint(
+    host: str, port: int, timeout: float
+) -> AsyncIterator["_Endpoint"]:
+    loop = asyncio.get_running_loop()
+    try:
+        async with asyncio.timeout(timeout):
+            _, endpoint = await loop.create_datagram_endpoint(
+                _Endpoint, remote_addr=(host, port)
+            )
+            try:
+                yield endpoint
+            finally:
+                endpoint.close()
+    except TimeoutError as err:
+        raise CololightConnectionError(
+            f"Timed out after {timeout} s talking to {host}"
+        ) from err
+    except (OSError, UnicodeError) as err:
+        raise CololightConnectionError(f"Can't reach {host}: {err}") from err
 
 
 class _Endpoint(asyncio.DatagramProtocol):
