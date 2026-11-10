@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 
+from .catalogue import EFFECT_PACKETS, HEXAGON_EFFECT_NAMES, MIX_EFFECT_NAMES
 from .exceptions import (
     CololightConnectionError,
     CololightError,
@@ -27,6 +28,24 @@ class DeviceType(StrEnum):
     HEXAGON = "hexagon"
     STRIP = "strip"
     MIX = "mix"
+
+
+_EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
+    DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
+    DeviceType.STRIP: (),
+    DeviceType.MIX: MIX_EFFECT_NAMES,
+}
+_SET_EFFECT = {
+    DeviceType.HEXAGON: bytes.fromhex("04010602ff"),
+    DeviceType.MIX: bytes.fromhex("04010602ff"),
+}
+
+
+def effect_names(device_type: DeviceType) -> list[str]:
+    """
+    Lists a device type's built-in effects in order.
+    """
+    return list(_EFFECT_NAMES[device_type])
 
 
 @dataclass(frozen=True)
@@ -55,7 +74,12 @@ class Cololight:
         timeout: float = 4,
     ) -> None:
         self.host = host
-        self.device_type = device_type
+        try:
+            self.device_type = DeviceType(device_type)
+        except ValueError as err:
+            raise CololightValidationError(
+                "device_type", f"Unknown device type {device_type!r}"
+            ) from err
         self.port = port
         self.timeout = timeout
         self._counter = 1
@@ -84,6 +108,17 @@ class Cololight:
                 "rgb", f"Colour must be three channels of 0–255, not {rgb}"
             )
         await self._send(_SET_COLOUR + bytes(rgb))
+
+    async def set_effect(self, name: str) -> None:
+        """
+        Shows one of the device type's built-in effects.
+        """
+        if name not in _EFFECT_NAMES[self.device_type]:
+            raise CololightValidationError(
+                "effect", f"Unknown {self.device_type} effect {name!r}"
+            )
+        for packet in EFFECT_PACKETS[name]:
+            await self._send(_SET_EFFECT[self.device_type] + bytes.fromhex(packet))
 
     async def get_state(self) -> CololightState:
         """

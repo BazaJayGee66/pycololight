@@ -1,4 +1,4 @@
-from .client import Cololight, CololightState, DeviceType
+from .client import Cololight, CololightState, DeviceType, effect_names
 from .discovery import detect_device_type
 from .effects import Effects
 from .exceptions import (
@@ -16,4 +16,5 @@ __all__ = [
     "DeviceType",
     "Effects",
     "detect_device_type",
+    "effect_names",
 ]
