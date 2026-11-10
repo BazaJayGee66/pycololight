@@ -24,8 +24,11 @@ OFF_COUNTER_1 = bytes.fromhex(
 OFF_FROM_51_COUNTER_1 = bytes.fromhex(
     "535a3030000000000020000000000000000000000000000000000100000000000000000004010301ce33"
 )
-COLOUR_255_34_34_COUNTER_1 = bytes.fromhex(
+HEXAGON_COLOUR_255_34_34_COUNTER_1 = bytes.fromhex(
     "535a3030000000000023000000000000000000000000000000000100000000000000000004010602ff00ff2222"
+)
+STRIP_COLOUR_255_34_34_COUNTER_1 = bytes.fromhex(
+    "535a3030000000000023000000000000000000000000000000000100000000000000000007010602ff00ff2222"
 )
 COLOUR_36_12_255_COUNTER_2 = bytes.fromhex(
     "535a3030000000000023000000000000000000000000000000000200000000000000000004010602ff00240cff"
@@ -106,10 +109,20 @@ async def test_turn_off_from_a_brightness_sends_off_at_that_brightness(
     assert await fake_light.next_packet() == OFF_FROM_51_COUNTER_1
 
 
-async def test_set_colour_sends_the_colour(client, fake_light):
+@pytest.mark.parametrize(
+    ("device_type", "packet"),
+    [
+        (DeviceType.HEXAGON, HEXAGON_COLOUR_255_34_34_COUNTER_1),
+        (DeviceType.STRIP, STRIP_COLOUR_255_34_34_COUNTER_1),
+    ],
+    ids=["hexagon", "strip"],
+)
+async def test_set_colour_sends_the_colour(fake_light, device_type, packet):
+    client = Cololight("127.0.0.1", device_type, port=fake_light.port)
+
     await client.set_colour((255, 34, 34))
 
-    assert await fake_light.next_packet() == COLOUR_255_34_34_COUNTER_1
+    assert await fake_light.next_packet() == packet
 
 
 async def test_packet_counter_flips_on_every_packet_across_calls(client, fake_light):
