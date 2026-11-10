@@ -6,7 +6,12 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 
-from .catalogue import EFFECT_PACKETS, HEXAGON_EFFECT_NAMES, MIX_EFFECT_NAMES
+from .catalogue import (
+    EFFECT_PACKETS,
+    HEXAGON_EFFECT_NAMES,
+    MIX_EFFECT_NAMES,
+    STRIP_EFFECT_NAMES,
+)
 from .exceptions import (
     CololightConnectionError,
     CololightError,
@@ -32,11 +37,12 @@ class DeviceType(StrEnum):
 
 _EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
     DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
-    DeviceType.STRIP: (),
+    DeviceType.STRIP: STRIP_EFFECT_NAMES,
     DeviceType.MIX: MIX_EFFECT_NAMES,
 }
 _SET_EFFECT = {
     DeviceType.HEXAGON: bytes.fromhex("04010602ff"),
+    DeviceType.STRIP: bytes.fromhex("07010602ff"),
     DeviceType.MIX: bytes.fromhex("04010602ff"),
 }
 
@@ -117,8 +123,10 @@ class Cololight:
             raise CololightValidationError(
                 "effect", f"Unknown {self.device_type} effect {name!r}"
             )
-        for packet in EFFECT_PACKETS[name]:
-            await self._send(_SET_EFFECT[self.device_type] + bytes.fromhex(packet))
+        prefix = _SET_EFFECT[self.device_type]
+        await self._send(
+            *(prefix + bytes.fromhex(packet) for packet in EFFECT_PACKETS[name])
+        )
 
     async def get_state(self) -> CololightState:
         """
@@ -139,9 +147,10 @@ class Cololight:
         payload = bytes(16) + bytes([counter]) + bytes(9) + body
         return _PREFIX + bytes([len(payload)]) + payload
 
-    async def _send(self, body: bytes) -> None:
+    async def _send(self, *bodies: bytes) -> None:
         async with _open_endpoint(self.host, self.port, self.timeout) as endpoint:
-            endpoint.send(self._frame(body))
+            for body in bodies:
+                endpoint.send(self._frame(body))
 
 
 @asynccontextmanager

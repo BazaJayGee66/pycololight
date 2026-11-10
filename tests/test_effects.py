@@ -1,9 +1,6 @@
 import pytest
 
 from pycololight import CololightValidationError, Effects
-from pycololight.constants import (
-    STRIP_DYANMIC_EFFECTS,
-)
 
 
 class TestEffects:
@@ -167,13 +164,3 @@ class TestEffects:
         )
 
         assert custom_effect_command == "0213b400"
-
-    def test_dynamic_effects_returns_dict_dynamic_effects(self):
-        hexagon_effects = Effects(device="hexagon")
-        strip_effects = Effects(device="strip")
-
-        expected_hexagon_dynamic_effects = {}
-        expected_strip_dynamic_effects = STRIP_DYANMIC_EFFECTS
-
-        assert hexagon_effects.dynamic_effects == expected_hexagon_dynamic_effects
-        assert strip_effects.dynamic_effects == expected_strip_dynamic_effects
