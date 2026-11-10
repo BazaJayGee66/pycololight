@@ -20,7 +20,6 @@ from .exceptions import (
 
 _PREFIX = bytes.fromhex("535a30300000000000")
 _SET_POWER = bytes.fromhex("04010301")
-_SET_COLOUR = bytes.fromhex("04010602ff00")
 _STATE_QUERY = bytes.fromhex("03020101")
 _ON = 0xCF
 _OFF = 0xCE
@@ -113,7 +112,7 @@ class Cololight:
             raise CololightValidationError(
                 "rgb", f"Colour must be three channels of 0–255, not {rgb}"
             )
-        await self._send(_SET_COLOUR + bytes(rgb))
+        await self._send(_SET_EFFECT[self.device_type] + bytes([0, *rgb]))
 
     async def set_effect(self, name: str) -> None:
         """
