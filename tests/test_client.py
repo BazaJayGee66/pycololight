@@ -72,6 +72,20 @@ def test_port_and_timeout_are_keyword_only(extra_args):
         Cololight("127.0.0.1", DeviceType.HEXAGON, *extra_args)
 
 
+@pytest.mark.parametrize("device_type", ["fake", "Hexagon"])
+def test_a_device_type_that_does_not_exist_raises_a_validation_error(device_type):
+    with pytest.raises(CololightValidationError) as raised:
+        Cololight("127.0.0.1", device_type)
+
+    assert raised.value.field == "device_type"
+
+
+def test_a_device_type_given_as_a_plain_string_becomes_a_device_type():
+    client = Cololight("127.0.0.1", "hexagon")
+
+    assert client.device_type is DeviceType.HEXAGON
+
+
 async def test_turn_on_sends_on_with_the_brightness(client, fake_light):
     await client.turn_on(51)
 

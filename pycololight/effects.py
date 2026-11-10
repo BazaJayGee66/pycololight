@@ -1,6 +1,5 @@
 from .constants import (
     CUSTOM_EFFECT_COLOURS,
-    DEFAULT_EFFECTS,
     HEXAGON_CUSTOM_EFFECT_MODES,
     STRIP_CUSTOM_EFFECT_MODES,
     STRIP_DYANMIC_EFFECTS,
@@ -15,7 +14,6 @@ class Effects:
 
     def __init__(self, device: str) -> None:
         self._device = device
-        self._default_effects = DEFAULT_EFFECTS.copy()
         self._dynamic_effects = self._device_dynamic_effects()
         self._modes = self._device_modes()
 
@@ -89,26 +87,11 @@ class Effects:
         return mode in lower_modes
 
     @property
-    def default_effects(self) -> dict[str, list[str]]:
-        """
-        Returns a dict of default effects with names and command hex values for the device.
-        """
-        return self._default_effects
-
-    @property
     def dynamic_effects(self) -> dict[str, list[str]]:
         """
         Returns a dict of dynamic effects with names and command hex values for the device.
         """
         return self._dynamic_effects
-
-    @property
-    def effects(self) -> dict[str, list[str]]:
-        """
-        Return a dict of all effects with names and command hex values for the device.
-        """
-        all_effects = {**self.default_effects, **self.dynamic_effects}
-        return all_effects
 
     def custom_effect_command(
         self, colour_scheme: str, colour: str, cycle_speed: int, mode: int
