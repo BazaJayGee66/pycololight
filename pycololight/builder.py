@@ -1,19 +1,13 @@
 from dataclasses import dataclass
 
-from .constants import (
-    CUSTOM_EFFECT_COLOURS,
-    HEXAGON_LOWER_PATTERNS,
-    HEXAGON_PATTERNS,
-    STRIP_LOWER_PATTERNS,
-    STRIP_PATTERNS,
-)
+from .constants import CUSTOM_EFFECT_COLOURS, HEXAGON_PATTERNS, STRIP_PATTERNS
 from .device_type import DeviceType
 from .exceptions import CololightValidationError
 
 _PATTERNS = {
-    DeviceType.HEXAGON: (HEXAGON_PATTERNS, HEXAGON_LOWER_PATTERNS),
-    DeviceType.STRIP: (STRIP_PATTERNS, STRIP_LOWER_PATTERNS),
-    DeviceType.MIX: (HEXAGON_PATTERNS, HEXAGON_LOWER_PATTERNS),
+    DeviceType.HEXAGON: HEXAGON_PATTERNS,
+    DeviceType.STRIP: STRIP_PATTERNS,
+    DeviceType.MIX: HEXAGON_PATTERNS,
 }
 _PATTERN_2_SPEEDS = {1: 0x03, 2: 0x0B, 3: 0x13}
 
@@ -37,14 +31,13 @@ def builder_limits(device_type: DeviceType) -> BuilderLimits:
     """
     Lists a device type's colour schemes and their colours, and each pattern's speeds.
     """
-    patterns, _ = _PATTERNS[device_type]
     return BuilderLimits(
         colours={
             scheme: tuple(colours) for scheme, colours in CUSTOM_EFFECT_COLOURS.items()
         },
         speeds={
             pattern: range(1, 4) if pattern == 2 else range(1, 34)
-            for pattern in range(1, len(patterns) + 1)
+            for pattern in range(1, len(_PATTERNS[device_type]) + 1)
         },
     )
 
@@ -90,11 +83,10 @@ class CustomEffect:
 
 
 def _packet(effect: CustomEffect) -> bytes:
-    patterns, lower_patterns = _PATTERNS[effect.device_type]
-    mode, suffix = patterns[effect.pattern - 1]
-    colour = CUSTOM_EFFECT_COLOURS[effect.colour_scheme][effect.colour]
-    if effect.pattern in lower_patterns:
-        colour -= 0x80
+    patterns = _PATTERNS[effect.device_type]
+    pattern_byte, colour_high_bit, suffix = patterns[effect.pattern - 1]
+    colour_byte = CUSTOM_EFFECT_COLOURS[effect.colour_scheme][effect.colour]
+    colour = (colour_byte & 0x7F) | colour_high_bit
     if effect.pattern == 2:
-        return bytes([mode, _PATTERN_2_SPEEDS[effect.speed], colour, suffix])
-    return bytes([mode, colour, 33 - effect.speed, suffix])
+        return bytes([pattern_byte, _PATTERN_2_SPEEDS[effect.speed], colour, suffix])
+    return bytes([pattern_byte, colour, 33 - effect.speed, suffix])
