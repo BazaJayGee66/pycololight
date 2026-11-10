@@ -3,15 +3,16 @@ import re
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from enum import StrEnum
 from typing import Any
 
+from .builder import CustomEffect, _packet
 from .catalogue import (
     EFFECT_PACKETS,
     HEXAGON_EFFECT_NAMES,
     MIX_EFFECT_NAMES,
     STRIP_EFFECT_NAMES,
 )
+from .device_type import DeviceType
 from .exceptions import (
     CololightConnectionError,
     CololightError,
@@ -26,13 +27,6 @@ _OFF = 0xCE
 _STATE_REPLY = 0x83
 _STATE_REPLY_MIN_LENGTH = 56
 _MAC_MARKER = b"\x0d\x01"
-
-
-class DeviceType(StrEnum):
-    HEXAGON = "hexagon"
-    STRIP = "strip"
-    MIX = "mix"
-
 
 _EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
     DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
@@ -114,18 +108,27 @@ class Cololight:
             )
         await self._send(_SET_EFFECT[self.device_type] + bytes([0, *rgb]))
 
-    async def set_effect(self, name: str) -> None:
+    async def set_effect(self, effect: str | CustomEffect) -> None:
         """
-        Shows one of the device type's built-in effects.
+        Shows one of the device type's built-in effects, by name, or a custom effect.
         """
-        if name not in _EFFECT_NAMES[self.device_type]:
-            raise CololightValidationError(
-                "effect", f"Unknown {self.device_type} effect {name!r}"
-            )
         prefix = _SET_EFFECT[self.device_type]
-        await self._send(
-            *(prefix + bytes.fromhex(packet) for packet in EFFECT_PACKETS[name])
-        )
+        await self._send(*(prefix + packet for packet in self._effect_packets(effect)))
+
+    def _effect_packets(self, effect: str | CustomEffect) -> list[bytes]:
+        if isinstance(effect, CustomEffect):
+            if effect.device_type != self.device_type:
+                raise CololightValidationError(
+                    "effect",
+                    f"Custom effect is for a {effect.device_type}, "
+                    f"not a {self.device_type}",
+                )
+            return [_packet(effect)]
+        if effect not in _EFFECT_NAMES[self.device_type]:
+            raise CololightValidationError(
+                "effect", f"Unknown {self.device_type} effect {effect!r}"
+            )
+        return [bytes.fromhex(packet) for packet in EFFECT_PACKETS[effect]]
 
     async def get_state(self) -> CololightState:
         """
