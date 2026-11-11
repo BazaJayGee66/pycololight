@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from .device_type import DeviceType
+from .device_type import DeviceType, _to_device_type
 from .exceptions import CololightValidationError
 
 
@@ -191,12 +191,7 @@ class CustomEffect:
     speed: int
 
     def __post_init__(self) -> None:
-        try:
-            object.__setattr__(self, "device_type", DeviceType(self.device_type))
-        except ValueError as err:
-            raise CololightValidationError(
-                "device_type", f"Unknown device type {self.device_type!r}"
-            ) from err
+        object.__setattr__(self, "device_type", _to_device_type(self.device_type))
         limits = builder_limits(self.device_type)
         if self.colour_scheme not in limits.colours:
             raise CololightValidationError(

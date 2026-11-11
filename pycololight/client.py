@@ -12,7 +12,7 @@ from .catalogue import (
     MIX_EFFECT_NAMES,
     STRIP_EFFECT_NAMES,
 )
-from .device_type import DeviceType
+from .device_type import DeviceType, _to_device_type
 from .exceptions import (
     CololightConnectionError,
     CololightError,
@@ -73,12 +73,7 @@ class Cololight:
         timeout: float = 4,
     ) -> None:
         self.host = host
-        try:
-            self.device_type = DeviceType(device_type)
-        except ValueError as err:
-            raise CololightValidationError(
-                "device_type", f"Unknown device type {device_type!r}"
-            ) from err
+        self.device_type = _to_device_type(device_type)
         self.port = port
         self.timeout = timeout
         self._counter = 1
