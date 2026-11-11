@@ -145,7 +145,8 @@ _PATTERNS = {
     DeviceType.STRIP: _STRIP_PATTERNS,
     DeviceType.MIX: _HEXAGON_PATTERNS,
 }
-_PATTERN_2_SPEEDS = {1: 0x03, 2: 0x0B, 3: 0x13}
+_SPEED_BYTES = {speed: 33 - speed for speed in range(1, 34)}
+_PATTERN_2_SPEED_BYTES = {1: 0x03, 2: 0x0B, 3: 0x13}
 
 
 @dataclass(frozen=True)
@@ -170,7 +171,7 @@ def builder_limits(device_type: DeviceType) -> BuilderLimits:
     return BuilderLimits(
         colours={scheme: tuple(colours) for scheme, colours in _COLOURS.items()},
         speeds={
-            pattern: range(1, 4) if pattern == 2 else range(1, 34)
+            pattern: range(1, len(_speed_bytes(pattern)) + 1)
             for pattern in range(1, len(_PATTERNS[device_type]) + 1)
         },
     )
@@ -218,11 +219,16 @@ class CustomEffect:
             )
 
 
+def _speed_bytes(pattern: int) -> dict[int, int]:
+    return _PATTERN_2_SPEED_BYTES if pattern == 2 else _SPEED_BYTES
+
+
 def _packet(effect: CustomEffect) -> bytes:
     patterns = _PATTERNS[effect.device_type]
     first_byte, colour_high_bit, suffix = patterns[effect.pattern - 1]
     colour_byte = _COLOURS[effect.colour_scheme][effect.colour]
     colour = (colour_byte & 0x7F) | colour_high_bit
+    speed = _speed_bytes(effect.pattern)[effect.speed]
     if effect.pattern == 2:
-        return bytes([first_byte, _PATTERN_2_SPEEDS[effect.speed], colour, suffix])
-    return bytes([first_byte, colour, 33 - effect.speed, suffix])
+        return bytes([first_byte, speed, colour, suffix])
+    return bytes([first_byte, colour, speed, suffix])
