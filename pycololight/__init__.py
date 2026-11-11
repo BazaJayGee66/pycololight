@@ -1,6 +1,7 @@
-from .client import Cololight, CololightState, DeviceType, effect_names
+from .builder import BuilderLimits, CustomEffect, builder_limits
+from .client import Cololight, CololightState, effect_names
+from .device_type import DeviceType
 from .discovery import detect_device_type
-from .effects import Effects
 from .exceptions import (
     CololightConnectionError,
     CololightError,
@@ -8,13 +9,15 @@ from .exceptions import (
 )
 
 __all__ = [
+    "BuilderLimits",
     "Cololight",
     "CololightConnectionError",
     "CololightError",
     "CololightState",
     "CololightValidationError",
+    "CustomEffect",
     "DeviceType",
-    "Effects",
+    "builder_limits",
     "detect_device_type",
     "effect_names",
 ]

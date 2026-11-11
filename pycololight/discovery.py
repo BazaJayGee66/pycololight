@@ -1,4 +1,5 @@
-from .client import DeviceType, _open_endpoint
+from .client import _open_endpoint
+from .device_type import DeviceType
 from .exceptions import CololightConnectionError
 
 _SEARCH = b"Z-SEARCH * \r\n"
