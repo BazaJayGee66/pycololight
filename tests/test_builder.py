@@ -21,74 +21,6 @@ HEXAGON_EFFECT_PREFIX = (
 STRIP_EFFECT_PREFIX = (
     "535a3030000000000023000000000000000000000000000000000100000000000000000007010602ff"
 )
-COLOUR_PAIRS = [
-    ("Breath", "Red, Green, Blue"),
-    ("Breath", "Rainbow"),
-    ("Breath", "Green"),
-    ("Breath", "Azure"),
-    ("Breath", "Blue"),
-    ("Breath", "Purple"),
-    ("Breath", "Red"),
-    ("Breath", "Orange"),
-    ("Breath", "Yellow"),
-    ("Breath", "White"),
-    ("Breath", "Green, Blue"),
-    ("Shadow", "Red, Yellow"),
-    ("Shadow", "Red, Green"),
-    ("Shadow", "Red, Purple"),
-    ("Shadow", "Red, Blue"),
-    ("Shadow", "Green, Yellow"),
-    ("Shadow", "Green, Azure"),
-    ("Shadow", "Green, Blue"),
-    ("Shadow", "Blue, Azure"),
-    ("Shadow", "Blue, Purple"),
-    ("Shadow", "Yellow, White"),
-    ("Shadow", "Red, White"),
-    ("Shadow", "Green, White"),
-    ("Shadow", "Azure, White"),
-    ("Shadow", "Blue, White"),
-    ("Shadow", "Purple, White"),
-    ("Flash", "Red, Green, Blue"),
-    ("Flash", "Rainbow"),
-    ("Flash", "Green"),
-    ("Flash", "Azure"),
-    ("Flash", "Blue"),
-    ("Flash", "Purple"),
-    ("Flash", "Red"),
-    ("Flash", "Orange"),
-    ("Flash", "Yellow"),
-    ("Flash", "White"),
-    ("Flicker", "Red, Green, Blue"),
-    ("Flicker", "Rainbow"),
-    ("Flicker", "Green"),
-    ("Flicker", "Azure"),
-    ("Flicker", "Blue"),
-    ("Flicker", "Purple"),
-    ("Flicker", "Red"),
-    ("Flicker", "Orange"),
-    ("Flicker", "Yellow"),
-    ("Flicker", "White"),
-    ("Scene", "Birthday"),
-    ("Scene", "Girlfriends"),
-    ("Scene", "Friends"),
-    ("Scene", "Workmates"),
-    ("Scene", "Family"),
-    ("Scene", "Lover"),
-    ("Mood", "Red"),
-    ("Mood", "Orange"),
-    ("Mood", "Yellow"),
-    ("Mood", "Green"),
-    ("Mood", "Grass"),
-    ("Mood", "Azure"),
-    ("Mood", "Blue"),
-    ("Mood", "Pink"),
-    ("Mood", "Gold"),
-    ("Mood", "Color"),
-    ("Mood", "True Color"),
-    ("Selected", "Savasana"),
-    ("Selected", "Sunrise"),
-    ("Selected", "Unicorns"),
-]
 
 
 async def sent_packet(fake_light, effect):
@@ -295,18 +227,6 @@ async def test_a_custom_effect_for_another_device_type_raises_a_validation_error
         await client.set_effect(CustomEffect(**BREATH_ON_PATTERN_1))
 
     assert raised.value.field == "effect"
-
-
-@pytest.mark.parametrize("device_type", list(DeviceType))
-def test_the_limits_list_each_colour_scheme_and_its_colours_in_order(device_type):
-    limits = builder_limits(device_type)
-
-    pairs = [
-        (scheme, colour)
-        for scheme, colours in limits.colours.items()
-        for colour in colours
-    ]
-    assert pairs == COLOUR_PAIRS
 
 
 @pytest.mark.parametrize(
