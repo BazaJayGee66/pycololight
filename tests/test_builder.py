@@ -237,6 +237,7 @@ async def test_a_strip_pattern_sends_its_pattern_bytes_with_the_strip_verb(
     ("changes", "field"),
     [
         ({"device_type": "fake"}, "device_type"),
+        ({"device_type": []}, "device_type"),
         ({"colour_scheme": "Rainbow"}, "colour_scheme"),
         ({"colour": "Grass"}, "colour"),
         ({"pattern": 0}, "pattern"),
@@ -252,6 +253,7 @@ async def test_a_strip_pattern_sends_its_pattern_bytes_with_the_strip_verb(
     ],
     ids=[
         "unknown device type",
+        "unhashable device type",
         "unknown colour scheme",
         "colour from another scheme",
         "pattern 0",
@@ -276,6 +278,12 @@ def test_an_invalid_field_raises_a_validation_error(changes, field):
 def test_fields_are_keyword_only():
     with pytest.raises(TypeError):
         CustomEffect(DeviceType.HEXAGON, "Breath", "Red, Green, Blue", 1, 10)
+
+
+def test_a_device_type_given_as_a_plain_string_becomes_a_device_type():
+    effect = CustomEffect(**(BREATH_ON_PATTERN_1 | {"device_type": "hexagon"}))
+
+    assert effect.device_type is DeviceType.HEXAGON
 
 
 async def test_a_custom_effect_for_another_device_type_raises_a_validation_error(

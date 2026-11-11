@@ -190,10 +190,12 @@ class CustomEffect:
     speed: int
 
     def __post_init__(self) -> None:
-        if self.device_type not in _PATTERNS:
+        try:
+            object.__setattr__(self, "device_type", DeviceType(self.device_type))
+        except ValueError as err:
             raise CololightValidationError(
                 "device_type", f"Unknown device type {self.device_type!r}"
-            )
+            ) from err
         limits = builder_limits(self.device_type)
         if self.colour_scheme not in limits.colours:
             raise CololightValidationError(
