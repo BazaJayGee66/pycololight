@@ -38,6 +38,8 @@ _SET_EFFECT = {
     DeviceType.STRIP: bytes.fromhex("07010602ff"),
     DeviceType.MIX: bytes.fromhex("04010602ff"),
 }
+# Unsaved, because the Strip would save only the last packet as its power-on effect.
+_SET_MULTI_PACKET_EFFECT = bytes.fromhex("04010602ff")
 
 
 def effect_names(device_type: DeviceType) -> list[str]:
@@ -107,8 +109,13 @@ class Cololight:
         """
         Shows one of the device type's built-in effects, by name, or a custom effect.
         """
-        prefix = _SET_EFFECT[self.device_type]
-        await self._send(*(prefix + packet for packet in self._effect_packets(effect)))
+        packets = self._effect_packets(effect)
+        prefix = (
+            _SET_EFFECT[self.device_type]
+            if len(packets) == 1
+            else _SET_MULTI_PACKET_EFFECT
+        )
+        await self._send(*(prefix + packet for packet in packets))
 
     def _effect_packets(self, effect: str | CustomEffect) -> list[bytes]:
         if isinstance(effect, CustomEffect):
