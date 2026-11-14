@@ -5,13 +5,8 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Any
 
-from .builder import CustomEffect, _packet
-from .catalogue import (
-    EFFECT_PACKETS,
-    HEXAGON_EFFECT_NAMES,
-    MIX_EFFECT_NAMES,
-    STRIP_EFFECT_NAMES,
-)
+from .builder import CustomEffect, _from_packet, _packet
+from .catalogue import _EFFECT_NAMES, EFFECT_PACKETS, _built_in_from_packet
 from .device_type import DeviceType, _to_device_type
 from .exceptions import (
     CololightConnectionError,
@@ -21,18 +16,15 @@ from .exceptions import (
 
 _PREFIX = bytes.fromhex("535a30300000000000")
 _SET_POWER = bytes.fromhex("04010301")
-_STATE_QUERY = bytes.fromhex("03020101")
+_STATE_QUERY = bytes.fromhex("03020100")
 _ON = 0xCF
 _OFF = 0xCE
 _STATE_REPLY = 0x83
 _STATE_REPLY_MIN_LENGTH = 56
+_ITEM_2 = bytes.fromhex("02ff")
+_PLAIN_COLOUR = 0x00
 _MAC_MARKER = b"\x0d\x01"
 
-_EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
-    DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
-    DeviceType.STRIP: STRIP_EFFECT_NAMES,
-    DeviceType.MIX: MIX_EFFECT_NAMES,
-}
 _SET_EFFECT = {
     DeviceType.HEXAGON: bytes.fromhex("04010602ff"),
     DeviceType.STRIP: bytes.fromhex("07010602ff"),
@@ -40,23 +32,19 @@ _SET_EFFECT = {
 }
 
 
-def effect_names(device_type: DeviceType) -> list[str]:
-    """
-    Lists a device type's built-in effects in order.
-    """
-    return list(_EFFECT_NAMES[device_type])
-
-
 @dataclass(frozen=True)
 class CololightState:
     """
     What the light reported when asked. `brightness` is 0–100, and `None` while off.
-    `mac` is lowercase hex with colons, such as `aa:bb:cc:dd:ee:ff`.
+    `mac` is lowercase hex with colons, such as `aa:bb:cc:dd:ee:ff`. The light shows
+    a plain `colour` or an `effect`, and both are `None` if it can't be named.
     """
 
     on: bool
     brightness: int | None
     mac: str
+    effect: str | CustomEffect | None = None
+    colour: tuple[int, int, int] | None = None
 
 
 class Cololight:
@@ -101,7 +89,7 @@ class Cololight:
             raise CololightValidationError(
                 "rgb", f"Colour must be three channels of 0–255, not {rgb}"
             )
-        await self._send(_SET_EFFECT[self.device_type] + bytes([0, *rgb]))
+        await self._send(_SET_EFFECT[self.device_type] + bytes([_PLAIN_COLOUR, *rgb]))
 
     async def set_effect(self, effect: str | CustomEffect) -> None:
         """
@@ -127,12 +115,13 @@ class Cololight:
 
     async def get_state(self) -> CololightState:
         """
-        Asks the light whether it's on, at what brightness, and for its MAC address.
+        Asks the light whether it's on, at what brightness, what it's showing, and for
+        its MAC address.
         """
         async with _open_endpoint(self.host, self.port, self.timeout) as endpoint:
             endpoint.send(self._frame(_STATE_QUERY))
             reply = await endpoint.reply
-        return _parse_state(reply)
+        return _parse_state(self.device_type, reply)
 
     def _frame(self, body: bytes) -> bytes:
         """
@@ -205,7 +194,7 @@ def _check_brightness(brightness: int) -> None:
         )
 
 
-def _parse_state(reply: bytes) -> CololightState:
+def _parse_state(device_type: DeviceType, reply: bytes) -> CololightState:
     """
     Reads the light's answer to the state query, and raises `CololightError` if it
     isn't one.
@@ -220,7 +209,29 @@ def _parse_state(reply: bytes) -> CololightState:
     ):
         raise CololightError(f"Can't read the light's state from {reply.hex()}")
     on = reply[40] == _ON
-    return CololightState(on=on, brightness=reply[41] if on else None, mac=mac)
+    effect, colour = _parse_shown(device_type, reply)
+    return CololightState(
+        on=on,
+        brightness=reply[41] if on else None,
+        mac=mac,
+        effect=effect,
+        colour=colour,
+    )
+
+
+def _parse_shown(
+    device_type: DeviceType, reply: bytes
+) -> tuple[str | CustomEffect | None, tuple[int, int, int] | None]:
+    """
+    Reads what the light is showing from the reply's item 2, if it has one.
+    """
+    if reply[42:44] != _ITEM_2:
+        return None, None
+    shown = reply[44:48]
+    if shown[0] == _PLAIN_COLOUR:
+        return None, (shown[1], shown[2], shown[3])
+    built_in = _built_in_from_packet(device_type, shown)
+    return built_in or _from_packet(device_type, shown), None
 
 
 def _parse_mac(tail: bytes) -> str | None:

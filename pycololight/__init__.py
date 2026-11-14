@@ -1,5 +1,6 @@
 from .builder import BuilderLimits, CustomEffect, builder_limits
-from .client import Cololight, CololightState, effect_names
+from .catalogue import effect_names
+from .client import Cololight, CololightState
 from .device_type import DeviceType
 from .discovery import detect_device_type
 from .exceptions import (

@@ -1,14 +1,27 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import NamedTuple
 
 from .device_type import DeviceType, _to_device_type
 from .exceptions import CololightValidationError
 
+_SPEED_BYTES = {speed: 33 - speed for speed in range(1, 34)}
+_COLOUR_BITS = 0x7F
+
 
 class _Pattern(NamedTuple):
     first_byte: int
     colour_high_bit: int
     suffix: int
+    speed_bytes: Mapping[int, int] = _SPEED_BYTES
+    speed_first: bool = False
+
+
+_PATTERN_2 = _Pattern(
+    0x02, 0x80, 0x00, speed_bytes={1: 0x03, 2: 0x0B, 3: 0x13}, speed_first=True
+)
+# The app's middle speed for pattern 2, where pycololight sends 0x0B.
+_APP_PATTERN_2_MIDDLE = 0x83
 
 
 _COLOURS: dict[str, dict[str, int]] = {
@@ -93,10 +106,15 @@ _COLOURS: dict[str, dict[str, int]] = {
         "Unicorns": 0xC3,
     },
 }
+_COLOUR_NAMES = {
+    byte & _COLOUR_BITS: (scheme, name)
+    for scheme, colours in _COLOURS.items()
+    for name, byte in colours.items()
+}
 
 _HEXAGON_PATTERNS = (
     _Pattern(0x01, 0x80, 0x00),
-    _Pattern(0x02, 0x80, 0x00),
+    _PATTERN_2,
     _Pattern(0x05, 0x80, 0x10),
     _Pattern(0x05, 0x80, 0x30),
     _Pattern(0x05, 0x80, 0x40),
@@ -126,7 +144,7 @@ _HEXAGON_PATTERNS = (
 
 _STRIP_PATTERNS = (
     _Pattern(0x01, 0x80, 0x00),
-    _Pattern(0x02, 0x80, 0x00),
+    _PATTERN_2,
     _Pattern(0x05, 0x80, 0x10),
     _Pattern(0x05, 0x80, 0x30),
     _Pattern(0x05, 0x80, 0x40),
@@ -145,8 +163,6 @@ _PATTERNS = {
     DeviceType.STRIP: _STRIP_PATTERNS,
     DeviceType.MIX: _HEXAGON_PATTERNS,
 }
-_SPEED_BYTES = {speed: 33 - speed for speed in range(1, 34)}
-_PATTERN_2_SPEED_BYTES = {1: 0x03, 2: 0x0B, 3: 0x13}
 
 
 @dataclass(frozen=True)
@@ -171,8 +187,8 @@ def builder_limits(device_type: DeviceType) -> BuilderLimits:
     return BuilderLimits(
         colours={scheme: tuple(colours) for scheme, colours in _COLOURS.items()},
         speeds={
-            pattern: range(1, len(_speed_bytes(pattern)) + 1)
-            for pattern in range(1, len(_PATTERNS[device_type]) + 1)
+            number: range(1, len(pattern.speed_bytes) + 1)
+            for number, pattern in enumerate(_PATTERNS[device_type], start=1)
         },
     )
 
@@ -214,16 +230,40 @@ class CustomEffect:
             )
 
 
-def _speed_bytes(pattern: int) -> dict[int, int]:
-    return _PATTERN_2_SPEED_BYTES if pattern == 2 else _SPEED_BYTES
-
-
 def _packet(effect: CustomEffect) -> bytes:
-    patterns = _PATTERNS[effect.device_type]
-    first_byte, colour_high_bit, suffix = patterns[effect.pattern - 1]
-    colour_byte = _COLOURS[effect.colour_scheme][effect.colour]
-    colour = (colour_byte & 0x7F) | colour_high_bit
-    speed = _speed_bytes(effect.pattern)[effect.speed]
-    if effect.pattern == 2:
-        return bytes([first_byte, speed, colour, suffix])
-    return bytes([first_byte, colour, speed, suffix])
+    pattern = _PATTERNS[effect.device_type][effect.pattern - 1]
+    colour_bits = _COLOURS[effect.colour_scheme][effect.colour] & _COLOUR_BITS
+    colour = colour_bits | pattern.colour_high_bit
+    speed = pattern.speed_bytes[effect.speed]
+    middle = (speed, colour) if pattern.speed_first else (colour, speed)
+    return bytes([pattern.first_byte, *middle, pattern.suffix])
+
+
+def _from_packet(device_type: DeviceType, packet: bytes) -> CustomEffect | None:
+    """
+    Reads a packet the builder could have made back into a `CustomEffect`.
+    """
+    first_byte, *middle, suffix = packet
+    for number, pattern in enumerate(_PATTERNS[device_type], start=1):
+        speed, colour = middle if pattern.speed_first else middle[::-1]
+        if (first_byte, colour & ~_COLOUR_BITS, suffix) != (
+            pattern.first_byte,
+            pattern.colour_high_bit,
+            pattern.suffix,
+        ):
+            continue
+        speeds = {byte: value for value, byte in pattern.speed_bytes.items()}
+        if pattern is _PATTERN_2:
+            speeds[_APP_PATTERN_2_MIDDLE] = 2
+        scheme_and_colour = _COLOUR_NAMES.get(colour & _COLOUR_BITS)
+        if scheme_and_colour is None or speed not in speeds:
+            return None
+        colour_scheme, colour_name = scheme_and_colour
+        return CustomEffect(
+            device_type=device_type,
+            colour_scheme=colour_scheme,
+            colour=colour_name,
+            pattern=number,
+            speed=speeds[speed],
+        )
+    return None

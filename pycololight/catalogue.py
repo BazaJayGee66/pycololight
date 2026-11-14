@@ -1,3 +1,5 @@
+from .device_type import DeviceType
+
 EFFECT_PACKETS: dict[str, tuple[str, ...]] = {
     "LifeSmart": ("04970400",),
     "Peach blossom": ("04940800",),
@@ -200,6 +202,13 @@ EFFECT_PACKETS: dict[str, tuple[str, ...]] = {
     "Mix Rhythm default": ("0a000000",),
 }
 
+_LAST_PACKETS = {
+    name: bytes.fromhex(packets[-1]) for name, packets in EFFECT_PACKETS.items()
+}
+_RHYTHM = 0x07
+_SENSITIVITY_BITS = 0xF0
+_FIRST_WITHOUT_SLIDERS = 0x80
+
 HEXAGON_EFFECT_NAMES = (
     "LifeSmart",
     "Peach blossom",
@@ -299,3 +308,42 @@ STRIP_EFFECT_NAMES = (
     "Dynamic",
     "Rhythm default",
 )
+
+_EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
+    DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
+    DeviceType.STRIP: STRIP_EFFECT_NAMES,
+    DeviceType.MIX: MIX_EFFECT_NAMES,
+}
+
+
+def effect_names(device_type: DeviceType) -> list[str]:
+    """
+    Lists a device type's built-in effects in order.
+    """
+    return list(_EFFECT_NAMES[device_type])
+
+
+def _built_in_from_packet(device_type: DeviceType, packet: bytes) -> str | None:
+    """
+    Names the built-in effect whose last packet this is, if exactly one fits.
+    """
+    names = _EFFECT_NAMES[device_type]
+    exact = [name for name in names if _LAST_PACKETS[name] == packet]
+    ignoring_sliders = [
+        name
+        for name in names
+        if _without_slider_bytes(_LAST_PACKETS[name]) == _without_slider_bytes(packet)
+    ]
+    matches = exact or ignoring_sliders
+    return matches[0] if len(matches) == 1 else None
+
+
+def _without_slider_bytes(packet: bytes) -> bytes:
+    """
+    Drops an effect's speed or sensitivity.
+    """
+    if packet[0] >= _FIRST_WITHOUT_SLIDERS:
+        return packet
+    if packet[0] == _RHYTHM:
+        return packet[:3] + bytes([packet[3] & ~_SENSITIVITY_BITS])
+    return packet[:2] + packet[3:]
