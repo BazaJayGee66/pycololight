@@ -5,10 +5,11 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Any
 
-from .builder import CustomEffect, _packet
+from .builder import CustomEffect, _from_packet, _packet
 from .catalogue import (
     EFFECT_PACKETS,
     HEXAGON_EFFECT_NAMES,
+    LAST_PACKETS,
     MIX_EFFECT_NAMES,
     STRIP_EFFECT_NAMES,
 )
@@ -21,11 +22,15 @@ from .exceptions import (
 
 _PREFIX = bytes.fromhex("535a30300000000000")
 _SET_POWER = bytes.fromhex("04010301")
-_STATE_QUERY = bytes.fromhex("03020101")
+_STATE_QUERY = bytes.fromhex("03020100")
 _ON = 0xCF
 _OFF = 0xCE
 _STATE_REPLY = 0x83
 _STATE_REPLY_MIN_LENGTH = 56
+_ITEM_2 = bytes.fromhex("02ff")
+_PLAIN_COLOUR = 0x00
+_RHYTHM = 0x07
+_FIRST_SCRIPT = 0x80
 _MAC_MARKER = b"\x0d\x01"
 
 _EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
@@ -51,12 +56,16 @@ def effect_names(device_type: DeviceType) -> list[str]:
 class CololightState:
     """
     What the light reported when asked. `brightness` is 0–100, and `None` while off.
-    `mac` is lowercase hex with colons, such as `aa:bb:cc:dd:ee:ff`.
+    `mac` is lowercase hex with colons, such as `aa:bb:cc:dd:ee:ff`. The light shows
+    either a plain `colour` or an `effect` (a built-in effect's name or a
+    `CustomEffect`), and both are `None` if what it's showing can't be named.
     """
 
     on: bool
     brightness: int | None
     mac: str
+    effect: str | CustomEffect | None = None
+    colour: tuple[int, int, int] | None = None
 
 
 class Cololight:
@@ -127,12 +136,13 @@ class Cololight:
 
     async def get_state(self) -> CololightState:
         """
-        Asks the light whether it's on, at what brightness, and for its MAC address.
+        Asks the light whether it's on, at what brightness, what it's showing, and for
+        its MAC address.
         """
         async with _open_endpoint(self.host, self.port, self.timeout) as endpoint:
             endpoint.send(self._frame(_STATE_QUERY))
             reply = await endpoint.reply
-        return _parse_state(reply)
+        return _parse_state(self.device_type, reply)
 
     def _frame(self, body: bytes) -> bytes:
         """
@@ -205,7 +215,7 @@ def _check_brightness(brightness: int) -> None:
         )
 
 
-def _parse_state(reply: bytes) -> CololightState:
+def _parse_state(device_type: DeviceType, reply: bytes) -> CololightState:
     """
     Reads the light's answer to the state query, and raises `CololightError` if it
     isn't one.
@@ -220,7 +230,54 @@ def _parse_state(reply: bytes) -> CololightState:
     ):
         raise CololightError(f"Can't read the light's state from {reply.hex()}")
     on = reply[40] == _ON
-    return CololightState(on=on, brightness=reply[41] if on else None, mac=mac)
+    effect, colour = _parse_shown(device_type, reply)
+    return CololightState(
+        on=on,
+        brightness=reply[41] if on else None,
+        mac=mac,
+        effect=effect,
+        colour=colour,
+    )
+
+
+def _parse_shown(
+    device_type: DeviceType, reply: bytes
+) -> tuple[str | CustomEffect | None, tuple[int, int, int] | None]:
+    """
+    Reads what the light is showing from the reply's item 2, if it has one.
+    """
+    if reply[42:44] != _ITEM_2:
+        return None, None
+    shown = reply[44:48]
+    if shown[0] == _PLAIN_COLOUR:
+        return None, (shown[1], shown[2], shown[3])
+    return _name_effect(device_type, shown), None
+
+
+def _name_effect(device_type: DeviceType, shown: bytes) -> str | CustomEffect | None:
+    names = _EFFECT_NAMES[device_type]
+    exact = [name for name in names if LAST_PACKETS[name] == shown]
+    any_slider = [
+        name
+        for name in names
+        if _without_slider_bytes(LAST_PACKETS[name]) == _without_slider_bytes(shown)
+    ]
+    matches = exact or any_slider
+    if len(matches) == 1:
+        return matches[0]
+    return _from_packet(device_type, shown)
+
+
+def _without_slider_bytes(packet: bytes) -> bytes:
+    """
+    Drops what the app's sliders change: the speed in byte 3, or a Rhythm effect's
+    sensitivity in the high nibble of byte 4. A script's packets have neither.
+    """
+    if packet[0] >= _FIRST_SCRIPT:
+        return packet
+    if packet[0] == _RHYTHM:
+        return packet[:3] + bytes([packet[3] & 0x0F])
+    return packet[:2] + packet[3:]
 
 
 def _parse_mac(tail: bytes) -> str | None:

@@ -9,6 +9,7 @@ from pycololight import (
     CololightError,
     CololightState,
     CololightValidationError,
+    CustomEffect,
     DeviceType,
 )
 
@@ -33,8 +34,8 @@ STRIP_COLOUR_255_34_34_COUNTER_1 = bytes.fromhex(
 COLOUR_36_12_255_COUNTER_2 = bytes.fromhex(
     "535a3030000000000023000000000000000000000000000000000200000000000000000004010602ff00240cff"
 )
-STATE_QUERY_COUNTER_1 = bytes.fromhex(
-    "535a303000000000001e000000000000000000000000000000000100000000000000000003020101"
+ALL_ITEMS_STATE_QUERY_COUNTER_1 = bytes.fromhex(
+    "535a303000000000001e000000000000000000000000000000000100000000000000000003020100"
 )
 ON_AT_100_REPLY = bytes.fromhex(
     "535a303080000000002e00000000000004ac00000000000000000100000000000000003883020301cf64"
@@ -60,6 +61,10 @@ ON_AT_51_ACK = bytes.fromhex(
     "535a303080000000002e000000000000044400000000000000000200000000000000000084010301cf33"
     "0d01414142424343444445454646"
 )
+
+
+def reply_showing(shown):
+    return ON_AT_51_REPLY[:44] + bytes.fromhex(shown) + ON_AT_51_REPLY[48:]
 
 
 @pytest.fixture
@@ -139,19 +144,21 @@ async def test_packet_counter_flips_on_every_packet_across_calls(client, fake_li
     ]
 
 
-async def test_get_state_sends_the_state_query(client, fake_light):
+async def test_get_state_asks_for_all_state_items(client, fake_light):
     fake_light.replies.append(ON_AT_100_REPLY)
 
     await client.get_state()
 
-    assert await fake_light.next_packet() == STATE_QUERY_COUNTER_1
+    assert await fake_light.next_packet() == ALL_ITEMS_STATE_QUERY_COUNTER_1
 
 
-async def test_get_state_reads_an_on_light_and_its_brightness(client, fake_light):
+async def test_get_state_reads_an_on_light_its_brightness_and_effect(
+    client, fake_light
+):
     fake_light.replies.append(ON_AT_51_REPLY)
 
     assert await client.get_state() == CololightState(
-        on=True, brightness=51, mac="aa:bb:cc:dd:ee:ff"
+        on=True, brightness=51, mac="aa:bb:cc:dd:ee:ff", effect="Laser"
     )
 
 
@@ -161,7 +168,85 @@ async def test_get_state_reports_no_brightness_while_the_light_is_off(
     fake_light.replies.append(OFF_FROM_51_REPLY)
 
     assert await client.get_state() == CololightState(
-        on=False, brightness=None, mac="aa:bb:cc:dd:ee:ff"
+        on=False, brightness=None, mac="aa:bb:cc:dd:ee:ff", effect="LifeSmart"
+    )
+
+
+@pytest.mark.parametrize(
+    ("shown", "effect"),
+    [("04971000", "LifeSmart"), ("070401f9", "Soft")],
+    ids=["speed", "sensitivity"],
+)
+async def test_get_state_names_a_built_in_effect_at_any_speed_or_sensitivity(
+    client, fake_light, shown, effect
+):
+    fake_light.replies.append(reply_showing(shown))
+
+    state = await client.get_state()
+
+    assert (state.effect, state.colour) == (effect, None)
+
+
+@pytest.mark.parametrize(
+    ("shown", "effect"),
+    [("049a0000", "Laser"), ("049a0e00", "Macaron"), ("049a0500", None)],
+    ids=["laser", "macaron", "either"],
+)
+async def test_get_state_tells_laser_from_macaron_only_at_their_default_speeds(
+    client, fake_light, shown, effect
+):
+    fake_light.replies.append(reply_showing(shown))
+
+    state = await client.get_state()
+
+    assert (state.effect, state.colour) == (effect, None)
+
+
+@pytest.mark.parametrize(
+    ("shown", "effect"),
+    [("93ff0091", "Graffiti"), ("93ff1091", None)],
+    ids=["its last packet", "another colour"],
+)
+async def test_get_state_names_a_multi_packet_effect_only_by_its_exact_last_packet(
+    fake_light, shown, effect
+):
+    client = Cololight("127.0.0.1", DeviceType.STRIP, port=fake_light.port)
+    fake_light.replies.append(reply_showing(shown))
+
+    state = await client.get_state()
+
+    assert state.effect == effect
+
+
+async def test_get_state_reads_a_plain_colour_as_no_effect(client, fake_light):
+    fake_light.replies.append(reply_showing("00ff2222"))
+
+    state = await client.get_state()
+
+    assert (state.effect, state.colour) == (None, (255, 34, 34))
+
+
+@pytest.mark.parametrize(
+    ("shown", "colour_scheme", "colour", "pattern", "speed"),
+    [
+        ("01c41f00", "Breath", "Green, Blue", 1, 2),
+        ("02838000", "Breath", "Red, Green, Blue", 2, 2),
+    ],
+    ids=["pattern 1", "pattern 2"],
+)
+async def test_get_state_reads_a_builder_effect_as_a_custom_effect(
+    client, fake_light, shown, colour_scheme, colour, pattern, speed
+):
+    fake_light.replies.append(reply_showing(shown))
+
+    state = await client.get_state()
+
+    assert state.effect == CustomEffect(
+        device_type=DeviceType.HEXAGON,
+        colour_scheme=colour_scheme,
+        colour=colour,
+        pattern=pattern,
+        speed=speed,
     )
 
 

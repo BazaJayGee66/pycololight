@@ -200,6 +200,10 @@ EFFECT_PACKETS: dict[str, tuple[str, ...]] = {
     "Mix Rhythm default": ("0a000000",),
 }
 
+LAST_PACKETS = {
+    name: bytes.fromhex(packets[-1]) for name, packets in EFFECT_PACKETS.items()
+}
+
 HEXAGON_EFFECT_NAMES = (
     "LifeSmart",
     "Peach blossom",
