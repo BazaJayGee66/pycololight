@@ -20,6 +20,7 @@ class _Pattern(NamedTuple):
 _PATTERN_2 = _Pattern(
     0x02, 0x80, 0x00, speed_bytes={1: 0x03, 2: 0x0B, 3: 0x13}, speed_first=True
 )
+# The app sends this for pattern 2's speed 2, where pycololight sends 0x0B.
 _APP_PATTERN_2_MIDDLE = 0x83
 
 
