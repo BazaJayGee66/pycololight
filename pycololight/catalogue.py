@@ -204,7 +204,8 @@ _LAST_PACKETS = {
     name: bytes.fromhex(packets[-1]) for name, packets in EFFECT_PACKETS.items()
 }
 _RHYTHM = 0x07
-_FIRST_SCRIPT = 0x80
+_SENSITIVITY_BITS = 0xF0
+_FIRST_WITHOUT_SLIDERS = 0x80
 
 HEXAGON_EFFECT_NAMES = (
     "LifeSmart",
@@ -325,8 +326,8 @@ def _without_slider_bytes(packet: bytes) -> bytes:
     """
     Drops an effect's speed or sensitivity.
     """
-    if packet[0] >= _FIRST_SCRIPT:
+    if packet[0] >= _FIRST_WITHOUT_SLIDERS:
         return packet
     if packet[0] == _RHYTHM:
-        return packet[:3] + bytes([packet[3] & 0x0F])
+        return packet[:3] + bytes([packet[3] & ~_SENSITIVITY_BITS])
     return packet[:2] + packet[3:]

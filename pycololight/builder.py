@@ -20,7 +20,7 @@ class _Pattern(NamedTuple):
 _PATTERN_2 = _Pattern(
     0x02, 0x80, 0x00, speed_bytes={1: 0x03, 2: 0x0B, 3: 0x13}, speed_first=True
 )
-# The app sends this for pattern 2's speed 2, where pycololight sends 0x0B.
+# The app's middle speed for pattern 2, where pycololight sends 0x0B.
 _APP_PATTERN_2_MIDDLE = 0x83
 
 
@@ -243,9 +243,9 @@ def _from_packet(device_type: DeviceType, packet: bytes) -> CustomEffect | None:
     """
     Reads a packet the builder could have made back into a `CustomEffect`.
     """
-    first_byte, byte_2, byte_3, suffix = packet
+    first_byte, *middle, suffix = packet
     for number, pattern in enumerate(_PATTERNS[device_type], start=1):
-        speed, colour = (byte_2, byte_3) if pattern.speed_first else (byte_3, byte_2)
+        speed, colour = middle if pattern.speed_first else middle[::-1]
         if (first_byte, colour & ~_COLOUR_BITS, suffix) != (
             pattern.first_byte,
             pattern.colour_high_bit,
