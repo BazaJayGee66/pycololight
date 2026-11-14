@@ -89,7 +89,7 @@ class Cololight:
             raise CololightValidationError(
                 "rgb", f"Colour must be three channels of 0–255, not {rgb}"
             )
-        await self._send(_SET_EFFECT[self.device_type] + bytes([0, *rgb]))
+        await self._send(_SET_EFFECT[self.device_type] + bytes([_PLAIN_COLOUR, *rgb]))
 
     async def set_effect(self, effect: str | CustomEffect) -> None:
         """
