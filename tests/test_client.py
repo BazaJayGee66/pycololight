@@ -204,8 +204,8 @@ async def test_get_state_tells_laser_from_macaron_only_at_their_default_speeds(
 
 @pytest.mark.parametrize(
     ("shown", "effect"),
-    [("93ff0091", "Graffiti"), ("93ff1091", None)],
-    ids=["its last packet", "another colour"],
+    [("93ff0091", "Graffiti"), ("93ff1091", None), ("9300ff64", None)],
+    ids=["its last packet", "another colour", "a last packet two effects share"],
 )
 async def test_get_state_names_a_multi_packet_effect_only_by_its_exact_last_packet(
     fake_light, shown, effect
