@@ -20,7 +20,6 @@ class _Pattern(NamedTuple):
 _PATTERN_2 = _Pattern(
     0x02, 0x80, 0x00, speed_bytes={1: 0x03, 2: 0x0B, 3: 0x13}, speed_first=True
 )
-# The app sends 0x83 for pattern 2's middle speed, which looks the same as 0x0B.
 _APP_PATTERN_2_MIDDLE = 0x83
 
 
@@ -255,10 +254,10 @@ def _from_packet(device_type: DeviceType, packet: bytes) -> CustomEffect | None:
         speeds = {byte: value for value, byte in pattern.speed_bytes.items()}
         if pattern is _PATTERN_2:
             speeds[_APP_PATTERN_2_MIDDLE] = 2
-        named = _COLOUR_NAMES.get(colour & _COLOUR_BITS)
-        if named is None or speed not in speeds:
+        scheme_and_colour = _COLOUR_NAMES.get(colour & _COLOUR_BITS)
+        if scheme_and_colour is None or speed not in speeds:
             return None
-        colour_scheme, colour_name = named
+        colour_scheme, colour_name = scheme_and_colour
         return CustomEffect(
             device_type=device_type,
             colour_scheme=colour_scheme,

@@ -190,7 +190,7 @@ async def test_get_state_names_a_built_in_effect_at_any_speed_or_sensitivity(
 @pytest.mark.parametrize(
     ("shown", "effect"),
     [("049a0000", "Laser"), ("049a0e00", "Macaron"), ("049a0500", None)],
-    ids=["laser", "macaron", "either"],
+    ids=["laser", "macaron", "ambiguous"],
 )
 async def test_get_state_tells_laser_from_macaron_only_at_their_default_speeds(
     client, fake_light, shown, effect

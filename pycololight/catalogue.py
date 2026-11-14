@@ -200,9 +200,11 @@ EFFECT_PACKETS: dict[str, tuple[str, ...]] = {
     "Mix Rhythm default": ("0a000000",),
 }
 
-LAST_PACKETS = {
+_LAST_PACKETS = {
     name: bytes.fromhex(packets[-1]) for name, packets in EFFECT_PACKETS.items()
 }
+_RHYTHM = 0x07
+_FIRST_SCRIPT = 0x80
 
 HEXAGON_EFFECT_NAMES = (
     "LifeSmart",
@@ -303,3 +305,28 @@ STRIP_EFFECT_NAMES = (
     "Dynamic",
     "Rhythm default",
 )
+
+
+def _built_in_from_packet(names: tuple[str, ...], packet: bytes) -> str | None:
+    """
+    Names the built-in effect whose last packet this is, if exactly one fits.
+    """
+    exact = [name for name in names if _LAST_PACKETS[name] == packet]
+    ignoring_sliders = [
+        name
+        for name in names
+        if _without_slider_bytes(_LAST_PACKETS[name]) == _without_slider_bytes(packet)
+    ]
+    matches = exact or ignoring_sliders
+    return matches[0] if len(matches) == 1 else None
+
+
+def _without_slider_bytes(packet: bytes) -> bytes:
+    """
+    Drops an effect's speed or sensitivity.
+    """
+    if packet[0] >= _FIRST_SCRIPT:
+        return packet
+    if packet[0] == _RHYTHM:
+        return packet[:3] + bytes([packet[3] & 0x0F])
+    return packet[:2] + packet[3:]

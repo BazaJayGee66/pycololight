@@ -9,9 +9,9 @@ from .builder import CustomEffect, _from_packet, _packet
 from .catalogue import (
     EFFECT_PACKETS,
     HEXAGON_EFFECT_NAMES,
-    LAST_PACKETS,
     MIX_EFFECT_NAMES,
     STRIP_EFFECT_NAMES,
+    _built_in_from_packet,
 )
 from .device_type import DeviceType, _to_device_type
 from .exceptions import (
@@ -29,8 +29,6 @@ _STATE_REPLY = 0x83
 _STATE_REPLY_MIN_LENGTH = 56
 _ITEM_2 = bytes.fromhex("02ff")
 _PLAIN_COLOUR = 0x00
-_RHYTHM = 0x07
-_FIRST_SCRIPT = 0x80
 _MAC_MARKER = b"\x0d\x01"
 
 _EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
@@ -57,8 +55,7 @@ class CololightState:
     """
     What the light reported when asked. `brightness` is 0–100, and `None` while off.
     `mac` is lowercase hex with colons, such as `aa:bb:cc:dd:ee:ff`. The light shows
-    either a plain `colour` or an `effect` (a built-in effect's name or a
-    `CustomEffect`), and both are `None` if what it's showing can't be named.
+    a plain `colour` or an `effect`, and both are `None` if it can't be named.
     """
 
     on: bool
@@ -251,33 +248,8 @@ def _parse_shown(
     shown = reply[44:48]
     if shown[0] == _PLAIN_COLOUR:
         return None, (shown[1], shown[2], shown[3])
-    return _name_effect(device_type, shown), None
-
-
-def _name_effect(device_type: DeviceType, shown: bytes) -> str | CustomEffect | None:
-    names = _EFFECT_NAMES[device_type]
-    exact = [name for name in names if LAST_PACKETS[name] == shown]
-    any_slider = [
-        name
-        for name in names
-        if _without_slider_bytes(LAST_PACKETS[name]) == _without_slider_bytes(shown)
-    ]
-    matches = exact or any_slider
-    if len(matches) == 1:
-        return matches[0]
-    return _from_packet(device_type, shown)
-
-
-def _without_slider_bytes(packet: bytes) -> bytes:
-    """
-    Drops what the app's sliders change: the speed in byte 3, or a Rhythm effect's
-    sensitivity in the high nibble of byte 4. A script's packets have neither.
-    """
-    if packet[0] >= _FIRST_SCRIPT:
-        return packet
-    if packet[0] == _RHYTHM:
-        return packet[:3] + bytes([packet[3] & 0x0F])
-    return packet[:2] + packet[3:]
+    built_in = _built_in_from_packet(_EFFECT_NAMES[device_type], shown)
+    return built_in or _from_packet(device_type, shown), None
 
 
 def _parse_mac(tail: bytes) -> str | None:
