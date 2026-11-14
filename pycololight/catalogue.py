@@ -1,3 +1,5 @@
+from .device_type import DeviceType
+
 EFFECT_PACKETS: dict[str, tuple[str, ...]] = {
     "LifeSmart": ("04970400",),
     "Peach blossom": ("04940800",),
@@ -307,11 +309,25 @@ STRIP_EFFECT_NAMES = (
     "Rhythm default",
 )
 
+_EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
+    DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
+    DeviceType.STRIP: STRIP_EFFECT_NAMES,
+    DeviceType.MIX: MIX_EFFECT_NAMES,
+}
 
-def _built_in_from_packet(names: tuple[str, ...], packet: bytes) -> str | None:
+
+def effect_names(device_type: DeviceType) -> list[str]:
+    """
+    Lists a device type's built-in effects in order.
+    """
+    return list(_EFFECT_NAMES[device_type])
+
+
+def _built_in_from_packet(device_type: DeviceType, packet: bytes) -> str | None:
     """
     Names the built-in effect whose last packet this is, if exactly one fits.
     """
+    names = _EFFECT_NAMES[device_type]
     exact = [name for name in names if _LAST_PACKETS[name] == packet]
     ignoring_sliders = [
         name

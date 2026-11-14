@@ -6,13 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .builder import CustomEffect, _from_packet, _packet
-from .catalogue import (
-    EFFECT_PACKETS,
-    HEXAGON_EFFECT_NAMES,
-    MIX_EFFECT_NAMES,
-    STRIP_EFFECT_NAMES,
-    _built_in_from_packet,
-)
+from .catalogue import _EFFECT_NAMES, EFFECT_PACKETS, _built_in_from_packet
 from .device_type import DeviceType, _to_device_type
 from .exceptions import (
     CololightConnectionError,
@@ -31,23 +25,11 @@ _ITEM_2 = bytes.fromhex("02ff")
 _PLAIN_COLOUR = 0x00
 _MAC_MARKER = b"\x0d\x01"
 
-_EFFECT_NAMES: dict[DeviceType, tuple[str, ...]] = {
-    DeviceType.HEXAGON: HEXAGON_EFFECT_NAMES,
-    DeviceType.STRIP: STRIP_EFFECT_NAMES,
-    DeviceType.MIX: MIX_EFFECT_NAMES,
-}
 _SET_EFFECT = {
     DeviceType.HEXAGON: bytes.fromhex("04010602ff"),
     DeviceType.STRIP: bytes.fromhex("07010602ff"),
     DeviceType.MIX: bytes.fromhex("04010602ff"),
 }
-
-
-def effect_names(device_type: DeviceType) -> list[str]:
-    """
-    Lists a device type's built-in effects in order.
-    """
-    return list(_EFFECT_NAMES[device_type])
 
 
 @dataclass(frozen=True)
@@ -248,7 +230,7 @@ def _parse_shown(
     shown = reply[44:48]
     if shown[0] == _PLAIN_COLOUR:
         return None, (shown[1], shown[2], shown[3])
-    built_in = _built_in_from_packet(_EFFECT_NAMES[device_type], shown)
+    built_in = _built_in_from_packet(device_type, shown)
     return built_in or _from_packet(device_type, shown), None
 
 
