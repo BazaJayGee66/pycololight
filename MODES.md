@@ -1,6 +1,10 @@
-# Modes
+# Patterns
 
-## Hexagon Modes
+These are the effect builder's patterns, numbered as `CustomEffect`'s `pattern`. `builder_limits(device_type).speeds` gives each pattern's speeds.
+
+A pattern's speed runs from `1`, the slowest, to `33`, the fastest. Pattern 2 is the exception: it takes `1`–`3`, which run from fastest to slowest, as its slider does in the Cololight app.
+
+## Hexagon
 
 |                                                        |     |                                                        |     |                                                        |     |                                                        |     |
 | ------------------------------------------------------ | --- | ------------------------------------------------------ | --- | ------------------------------------------------------ | --- | ------------------------------------------------------ | --- |
@@ -12,7 +16,7 @@
 | ![Alt text](images/hexagon_modes/mode_21.png?raw=true) | 21  | ![Alt text](images/hexagon_modes/mode_22.png?raw=true) | 22  | ![Alt text](images/hexagon_modes/mode_23.png?raw=true) | 23  | ![Alt text](images/hexagon_modes/mode_24.png?raw=true) | 24  |
 | ![Alt text](images/hexagon_modes/mode_25.png?raw=true) | 25  | ![Alt text](images/hexagon_modes/mode_26.png?raw=true) | 26  | ![Alt text](images/hexagon_modes/mode_27.png?raw=true) | 27  |                                                        |     |
 
-## Strip Modes
+## Strip
 
 |                                                      |     |                                                      |     |                                                      |     |                                                      |     |
 | ---------------------------------------------------- | --- | ---------------------------------------------------- | --- | ---------------------------------------------------- | --- | ---------------------------------------------------- | --- |
@@ -21,7 +25,7 @@
 | ![Alt text](images/strip_modes/mode_09.png?raw=true) | 9   | ![Alt text](images/strip_modes/mode_10.png?raw=true) | 10  | ![Alt text](images/strip_modes/mode_11.png?raw=true) | 11  | ![Alt text](images/strip_modes/mode_12.png?raw=true) | 12  |
 | ![Alt text](images/strip_modes/mode_13.png?raw=true) | 13  |                                                      |     |                                                      |     |                                                      |     |
 
-## MIX Modes
+## MIX
 
 |                                                    |     |                                                    |     |                                                    |     |                                                    |     |
 | -------------------------------------------------- | --- | -------------------------------------------------- | --- | -------------------------------------------------- | --- | -------------------------------------------------- | --- |
