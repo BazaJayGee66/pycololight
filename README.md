@@ -8,11 +8,11 @@ An asyncio Python library for controlling LifeSmart Cololight lights on your loc
 
 ## Supported device types
 
-| Device type          | Checked on                       |
-| -------------------- | -------------------------------- |
-| `DeviceType.HEXAGON` | Hexagon Pro, firmware 5.20.17.14 |
-| `DeviceType.STRIP`   | Strip, firmware 6.10.3.12        |
-| `DeviceType.MIX`     | MIX Pro, firmware 7.6.2.6        |
+| Device type          | Checked on  |
+| -------------------- | ----------- |
+| `DeviceType.HEXAGON` | Hexagon Pro |
+| `DeviceType.STRIP`   | Strip       |
+| `DeviceType.MIX`     | MIX Pro     |
 
 ## Usage
 
