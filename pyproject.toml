@@ -1,6 +1,6 @@
 [project]
 name = "pycololight"
-version = "2.2.0"
+version = "3.0.0"
 description = "A Python3 wrapper for interacting with LifeSmart Cololight"
 readme = "README.md"
 license = "MIT"
