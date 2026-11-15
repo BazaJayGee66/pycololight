@@ -2,7 +2,7 @@
 
 These are the effect builder's patterns, numbered as `CustomEffect`'s `pattern`. `builder_limits(device_type).speeds` gives each pattern's speeds.
 
-A pattern's speed runs from `1`, the slowest, to `33`, the fastest. Pattern 2 is the exception: it takes `1`–`3`, which run from fastest to slowest, as its slider does in the Cololight app.
+A pattern's speed runs from `1`, the slowest, to `33`, the fastest. Pattern 2 is the exception: it takes `1`-`3`, which run from fastest to slowest, as its slider does in the Cololight app.
 
 ## Hexagon
 

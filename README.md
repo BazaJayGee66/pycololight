@@ -73,10 +73,10 @@ The patterns for custom effects are on the [patterns page](https://github.com/Ba
 | Field        | Holds                                                |
 | ------------ | ---------------------------------------------------- |
 | `on`         | Whether the light is on                              |
-| `brightness` | 0–100, or `None` while the light is off              |
+| `brightness` | 0-100, or `None` while the light is off              |
 | `mac`        | The light's MAC address, such as `aa:bb:cc:dd:ee:ff` |
 | `effect`     | A built-in effect's name, or a `CustomEffect`        |
-| `colour`     | A plain colour, as `(red, green, blue)`, each 0–255  |
+| `colour`     | A plain colour, as `(red, green, blue)`, each 0-255  |
 
 At most one of `effect` and `colour` is set. Both are `None` when the light shows something pycololight can't name:
 
